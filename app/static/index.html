@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IncuBrix B-roll Video Engine — Live Demo</title>
+  <style>
+    :root { --bg:#0b1020; --card:#131b31; --border:#253256; --text:#edf2ff; --muted:#9aa9cb; --accent:#4f8cff; --ok:#22c55e; --warn:#f59e0b; --err:#ef4444; }
+    * { box-sizing: border-box; font-family: Inter, system-ui, -apple-system, sans-serif; }
+    body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.5; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 24px 18px 60px; }
+    header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:22px; }
+    h1 { margin:0; font-size:1.55rem; }
+    .badge { background:#1c294d; color:#8cb4ff; padding:4px 10px; border-radius:999px; font-size:0.8rem; border:1px solid var(--border); }
+    .grid { display:grid; grid-template-columns: 1.05fr 0.95fr; gap:18px; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+    label { display:block; font-size:0.85rem; color: var(--muted); margin: 10px 0 4px; }
+    input[type=text], input[type=password], select, textarea { width:100%; background:#0c1326; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:9px 11px; font-size:0.92rem; }
+    textarea { min-height: 110px; resize: vertical; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .tabs { display:flex; gap:8px; margin-bottom:10px; }
+    .tab { background:#0c1326; border:1px solid var(--border); color:var(--muted); padding:7px 12px; border-radius:8px; cursor:pointer; font-size:0.86rem; }
+    .tab.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+    button.primary { background:var(--accent); color:#fff; border:none; padding:11px 18px; border-radius:8px; font-weight:600; cursor:pointer; margin-top:14px; width:100%; font-size:0.95rem; }
+    button.secondary { background:#1e2b4d; color:#dce6ff; border:1px solid var(--border); padding:6px 10px; border-radius:6px; cursor:pointer; font-size:0.8rem; }
+    .bar { height:10px; background:#0c1326; border-radius:999px; overflow:hidden; margin:10px 0; border:1px solid var(--border); }
+    .bar > div { height:100%; background:linear-gradient(90deg, #4f8cff, #22c55e); width:0%; transition:width 0.3s; }
+    video { width:100%; max-height:360px; border-radius:8px; background:#000; margin-top:8px; }
+    .scene { border:1px solid var(--border); border-radius:8px; padding:10px; margin-top:8px; background:#0d1428; font-size:0.84rem; }
+    .pill { display:inline-block; padding:2px 7px; border-radius:5px; font-size:0.74rem; margin-right:6px; background:#1c294d; color:#a8c5ff; }
+    .pill.ai { background:#3b1e54; color:#e9b8ff; }
+    .pill.warn { background:#452c09; color:#fcd34d; }
+    a { color:#8cb4ff; }
+    pre { background:#090e1c; padding:10px; border-radius:8px; overflow:auto; font-size:0.78rem; max-height:200px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>IncuBrix Script &amp; Voiceover → B-roll Engine</h1>
+      <div style="color:var(--muted);font-size:0.88rem;">Scene-by-scene licence-clean B-roll, smart 9:16 framing, independent VLM scoring &amp; fast clip swap</div>
+    </div>
+    <div class="row">
+      <span class="badge">OpenAPI 3.1: <a href="/docs" target="_blank">/docs</a></span>
+      <span class="badge"><a href="/health" target="_blank">/health</a> &bull; <a href="/ready" target="_blank">/ready</a></span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <div class="tabs">
+        <button class="tab active" onclick="setMode('script', this)">Script (TTS)</button>
+        <button class="tab" onclick="setMode('upload', this)">Audio Upload</button>
+        <button class="tab" onclick="setMode('url', this)">Audio URL</button>
+        <button class="tab" onclick="setMode('scenes', this)">IncuBrix Scenes</button>
+      </div>
+
+      <div id="pane-script">
+        <label>Narration Script (English, Hindi, or Tamil)</label>
+        <textarea id="scriptInput">Trust is earned slowly through consistent everyday actions. Modern cloud computing powers fast digital tools while sales grew 40% in 2025. Learning Python helps developers automate repetitive work cleanly.</textarea>
+      </div>
+      <div id="pane-upload" style="display:none;">
+        <label>Upload Audio File (.mp3, .wav, .m4a — up to 10 min)</label>
+        <input type="file" id="audioFile" accept=".mp3,.wav,.m4a,audio/*" />
+      </div>
+      <div id="pane-url" style="display:none;">
+        <label>Public Audio URL (.mp3, .wav, .m4a)</label>
+        <input type="text" id="audioUrl" placeholder="https://example.com/voiceover.mp3" />
+      </div>
+      <div id="pane-scenes" style="display:none;">
+        <label>IncuBrix Scene List JSON ([{"text": "...", "visual_hint": "..."}])</label>
+        <textarea id="scenesInput">[
+  {"text": "Morning coffee fuels creative focus across modern studios.", "visual_hint": "barista pouring warm coffee sunlit cafe"},
+  {"text": "Data analytics teams track global cloud infrastructure in real time.", "visual_hint": "modern server room data center glowing screens"}
+]</textarea>
+      </div>
+
+      <div class="row">
+        <div style="flex:1;">
+          <label>Voice (for Script/Scenes)</label>
+          <select id="voice">
+            <option value="en-IN-female">en-IN-female (Indian English)</option>
+            <option value="en-IN-male">en-IN-male</option>
+            <option value="en-US-female">en-US-female</option>
+            <option value="hi-IN-female">hi-IN-female (Hindi)</option>
+            <option value="ta-IN-female">ta-IN-female (Tamil)</option>
+          </select>
+        </div>
+        <div style="flex:1;">
+          <label>Visual Style</label>
+          <input type="text" id="style" value="bright, modern, real-world footage" />
+        </div>
+      </div>
+
+      <label>Aspect Ratios</label>
+      <div class="row">
+        <label style="margin:0;"><input type="checkbox" class="ratio" value="16:9" checked /> 16:9 (1080p)</label>
+        <label style="margin:0;"><input type="checkbox" class="ratio" value="9:16" checked /> 9:16 (Vertical)</label>
+        <label style="margin:0;"><input type="checkbox" class="ratio" value="1:1" /> 1:1 (Square)</label>
+        <label style="margin:0;margin-left:14px;"><input type="checkbox" id="burnIn" checked /> Burn-in Captions</label>
+      </div>
+
+      <div class="row">
+        <div style="flex:1;">
+          <label>Avoid (comma-separated)</label>
+          <input type="text" id="avoid" value="alcohol" placeholder="people's faces, alcohol" />
+        </div>
+        <div style="flex:1;">
+          <label>Access Token (if server requires auth)</label>
+          <input type="password" id="token" placeholder="Optional Bearer token" />
+        </div>
+      </div>
+
+      <button class="primary" onclick="submitJob()">Generate B-roll Video</button>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between;">
+        <strong>Job Status</strong>
+        <span id="jobIdLabel" class="badge">Idle</span>
+      </div>
+      <div class="bar"><div id="progressBar"></div></div>
+      <div id="statusText" style="font-size:0.88rem;color:var(--muted);">Submit a script, audio file, URL, or IncuBrix scene list to begin.</div>
+      <div id="warningsBox" style="margin-top:8px;"></div>
+      <div id="linksBox" style="margin-top:10px;"></div>
+      <div id="videoContainer"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px;display:none;" id="timelineCard">
+    <div class="row" style="justify-content:space-between;">
+      <strong>Scene Timeline &amp; Fast Swap-a-Clip</strong>
+      <span id="timelineSummary" class="badge"></span>
+    </div>
+    <div id="scenesList"></div>
+  </div>
+</div>
+
+<script>
+let mode = 'script';
+let currentJobId = null;
+
+function setMode(m, btn) {
+  mode = m;
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ['script','upload','url','scenes'].forEach(p => {
+    document.getElementById('pane-' + p).style.display = (p === m) ? 'block' : 'none';
+  });
+}
+
+function getHeaders(extra = {}) {
+  const h = { ...extra, 'X-Correlation-Id': 'ui_' + Math.random().toString(36).slice(2, 10) };
+  const tok = document.getElementById('token').value.trim();
+  if (tok) h['Authorization'] = 'Bearer ' + tok;
+  return h;
+}
+
+async function submitJob() {
+  const ratios = Array.from(document.querySelectorAll('.ratio:checked')).map(c => c.value);
+  if (!ratios.length) { alert('Select at least one aspect ratio.'); return; }
+  const avoid = document.getElementById('avoid').value.split(',').map(s => s.trim()).filter(Boolean);
+  const common = {
+    voice: document.getElementById('voice').value,
+    aspect_ratios: ratios,
+    style: document.getElementById('style').value,
+    avoid,
+    captions: { burn_in: document.getElementById('burnIn').checked, srt: true }
+  };
+
+  const idem = 'ui_' + Date.now();
+  let resp;
+  if (mode === 'upload') {
+    const fileInput = document.getElementById('audioFile');
+    if (!fileInput.files.length) { alert('Select an audio file.'); return; }
+    const fd = new FormData();
+    fd.append('audio_file', fileInput.files[0]);
+    fd.append('metadata', JSON.stringify(common));
+    resp = await fetch('/api/v1/broll/jobs/upload', { method: 'POST', headers: getHeaders({'Idempotency-Key': idem}), body: fd });
+  } else {
+    const body = { ...common };
+    if (mode === 'script') body.script = document.getElementById('scriptInput').value;
+    if (mode === 'url') body.audio_url = document.getElementById('audioUrl').value.trim();
+    if (mode === 'scenes') body.scenes = JSON.parse(document.getElementById('scenesInput').value);
+    resp = await fetch('/api/v1/broll/jobs', {
+      method: 'POST',
+      headers: getHeaders({'Content-Type': 'application/json', 'Idempotency-Key': idem}),
+      body: JSON.stringify(body)
+    });
+  }
+
+  const data = await resp.json();
+  if (!resp.ok) {
+    document.getElementById('statusText').innerHTML = '<span style="color:var(--err);">Error: ' + JSON.stringify(data) + '</span>';
+    return;
+  }
+  currentJobId = data.job_id;
+  document.getElementById('jobIdLabel').textContent = currentJobId;
+  document.getElementById('videoContainer').innerHTML = '';
+  document.getElementById('linksBox').innerHTML = '';
+  document.getElementById('timelineCard').style.display = 'none';
+  pollJob(currentJobId);
+}
+
+async function pollJob(jobId) {
+  const resp = await fetch('/api/v1/jobs/' + jobId, { headers: getHeaders() });
+  const data = await resp.json();
+  document.getElementById('progressBar').style.width = (data.progress || 0) + '%';
+  document.getElementById('statusText').textContent = `${data.status.toUpperCase()} (${data.progress}%) — stage: ${data.stage}`;
+
+  const wBox = document.getElementById('warningsBox');
+  wBox.innerHTML = (data.warnings || []).map(w => `<div class="pill warn">${w}</div>`).join('');
+
+  if (data.status === 'succeeded') {
+    renderResult(data);
+    return;
+  }
+  if (data.status === 'failed') {
+    document.getElementById('statusText').innerHTML = '<span style="color:var(--err);">FAILED: ' + JSON.stringify(data.error) + '</span>';
+    return;
+  }
+  setTimeout(() => pollJob(jobId), 1200);
+}
+
+async function renderResult(data) {
+  const r = data.result || {};
+  const links = [];
+  if (r.captions_srt) links.push(`<a href="${r.captions_srt}" target="_blank">captions.srt</a>`);
+  if (r.timeline_json) links.push(`<a href="${r.timeline_json}" target="_blank">timeline.json</a>`);
+  if (r.manifest_json) links.push(`<a href="${r.manifest_json}" target="_blank">manifest.json</a>`);
+  document.getElementById('linksBox').innerHTML = 'Artifacts: ' + links.join(' &bull; ');
+
+  const vc = document.getElementById('videoContainer');
+  vc.innerHTML = '';
+  for (const [ratio, url] of Object.entries(r.videos || {})) {
+    vc.innerHTML += `<div style="margin-top:10px;"><span class="badge">${ratio}</span> <a href="${url}" target="_blank">Download MP4</a><video controls src="${url}?t=${Date.now()}"></video></div>`;
+  }
+
+  if (r.timeline_json) {
+    const tl = await (await fetch(r.timeline_json)).json();
+    document.getElementById('timelineCard').style.display = 'block';
+    document.getElementById('timelineSummary').textContent = `${tl.scene_count} scenes | avg VLM ${tl.average_relevance_score}/5 | repeats: ${tl.repeat_clip_count}`;
+    const list = document.getElementById('scenesList');
+    list.innerHTML = tl.scenes.map(s => `
+      <div class="scene">
+        <div class="row" style="justify-content:space-between;">
+          <div>
+            <strong>Scene ${s.scene_index}</strong> (${s.start_time.toFixed(2)}s – ${s.end_time.toFixed(2)}s)
+            <span class="pill">${s.source}</span>
+            ${s.ai_generated ? '<span class="pill ai">AI-Generated</span>' : ''}
+            <span class="pill">VLM: ${s.relevance_score}/5</span>
+            <span class="pill">Focus X: ${s.crop_focus_x}</span>
+          </div>
+          <button class="secondary" onclick="swapScene(${s.scene_index})">Swap Clip</button>
+        </div>
+        <div style="margin:6px 0;">"${s.narration_text}"</div>
+        <div style="color:var(--muted);font-size:0.78rem;">
+          Query: <code>${s.search_query}</code> | Rule: <code>${s.selection_rule}</code> | ${s.selection_reason}<br/>
+          Licence: ${s.licence} (${s.attribution})
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+async function swapScene(idx) {
+  const q = prompt(`Enter new visual search query for Scene ${idx} (or leave blank for alternate clip):`, '');
+  if (q === null) return;
+  document.getElementById('statusText').textContent = `Swapping Scene ${idx} (partial re-render)...`;
+  const resp = await fetch(`/api/v1/broll/jobs/${currentJobId}/scenes/${idx}/swap`, {
+    method: 'POST',
+    headers: getHeaders({'Content-Type': 'application/json'}),
+    body: JSON.stringify({ query: q || null })
+  });
+  const res = await resp.json();
+  if (!resp.ok) { alert('Swap failed: ' + JSON.stringify(res)); return; }
+  document.getElementById('statusText').textContent = `Swapped Scene ${idx} in ${res.swap_duration_seconds}s (vs ${res.original_full_render_seconds}s full render; reused ${res.cached_scenes_reused} cached scenes)!`;
+  const jobResp = await (await fetch('/api/v1/jobs/' + currentJobId, { headers: getHeaders() })).json();
+  renderResult(jobResp);
+}
+</script>
+</body>
+</html>
