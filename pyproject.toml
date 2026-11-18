@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "incubrix-broll-engine"
+version = "1.0.0"
+description = "Script and Voiceover to Licence-Clean B-roll Video Engine (IncuBrix Engineering Assessment 3)"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pydantic>=2.9.0",
+    "pydantic-settings>=2.6.0",
+    "python-multipart>=0.0.12",
+    "httpx>=0.27.2",
+    "sqlalchemy>=2.0.35",
+    "psycopg2-binary>=2.9.9",
+    "redis>=5.1.0",
+    "boto3>=1.35.0",
+    "structlog>=24.4.0",
+    "pyyaml>=6.0.2",
+    "pillow>=10.4.0",
+    "numpy>=1.26.4",
+    "opencv-python-headless>=4.10.0.84",
+    "google-genai>=3.2.0",
+    "tenacity>=9.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "scipy>=1.14.0",
+    "openpyxl>=3.1.5",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
