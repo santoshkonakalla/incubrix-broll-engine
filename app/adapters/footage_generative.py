@@ -25,20 +25,22 @@ def image_to_ken_burns_video(
     out_video.parent.mkdir(parents=True, exist_ok=True)
     frames = max(int(round(duration * fps)), fps * 2)
     # Slow cinematic zoom from 1.00 -> 1.14 centered smoothly
+    intermediate_w = int(width * 1.15)
+    intermediate_h = int(height * 1.15)
     vf = (
-        f"scale={width * 2}:{height * 2}:force_original_aspect_ratio=increase,"
-        f"crop={width * 2}:{height * 2},"
+        f"scale={intermediate_w}:{intermediate_h}:force_original_aspect_ratio=increase,"
+        f"crop={intermediate_w}:{intermediate_h},"
         f"zoompan=z='min(zoom+0.0008,1.15)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d={frames}:s={width}x{height}:fps={fps},"
         f"format=yuv420p"
     )
     cmd = [
         "ffmpeg", "-y",
-        "-threads", "2",
+        "-threads", "1",
         "-loop", "1",
         "-i", str(image_path),
         "-t", f"{duration:.3f}",
         "-vf", vf,
-        "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p", "-r", str(fps),
+        "-c:v", "libx264", "-preset", "ultrafast", "-crf", "26", "-pix_fmt", "yuv420p", "-r", str(fps),
         str(out_video),
     ]
     proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120)

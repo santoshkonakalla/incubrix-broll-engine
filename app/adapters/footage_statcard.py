@@ -140,9 +140,9 @@ def render_animated_card_video(
     # Transcode to clean H.264 yuv420p
     cmd = [
         "ffmpeg", "-y",
-        "-threads", "2",
+        "-threads", "1",
         "-i", str(raw_avi),
-        "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p", "-r", str(fps),
+        "-c:v", "libx264", "-preset", "ultrafast", "-crf", "26", "-pix_fmt", "yuv420p", "-r", str(fps),
         str(out_path),
     ]
     proc = subprocess.run(cmd, capture_output=True, text=True, timeout=60)

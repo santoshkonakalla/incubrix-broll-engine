@@ -44,6 +44,7 @@ def detect_subject_focus_x(
             if not ok or frame is None:
                 continue
             x_est = _frame_saliency_center_x(frame)
+            del frame
             if x_est is not None:
                 x_estimates.append(x_est)
 

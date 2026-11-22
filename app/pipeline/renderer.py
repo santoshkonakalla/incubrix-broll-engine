@@ -90,11 +90,30 @@ def _render_caption_png(text: str, width: int, height: int, language: str, out_p
     img.save(out_png, format="PNG")
     return out_png
 
-ASPECT_DIMENSIONS: Dict[str, Tuple[int, int]] = {
-    "16:9": (1920, 1080),
-    "9:16": (1080, 1920),
-    "1:1": (1080, 1080),
+RESOLUTION_PROFILES: Dict[str, Dict[str, Tuple[int, int]]] = {
+    "720p": {
+        "16:9": (1280, 720),
+        "9:16": (720, 1280),
+        "1:1": (720, 720),
+    },
+    "1080p": {
+        "16:9": (1920, 1080),
+        "9:16": (1080, 1920),
+        "1:1": (1080, 1080),
+    },
 }
+
+
+def get_aspect_dimensions(resolution: Optional[str] = None) -> Dict[str, Tuple[int, int]]:
+    try:
+        from app.config import get_settings
+        res = resolution or get_settings().render_resolution
+        return RESOLUTION_PROFILES.get(res, RESOLUTION_PROFILES["720p"])
+    except Exception:
+        return RESOLUTION_PROFILES["720p"]
+
+
+ASPECT_DIMENSIONS: Dict[str, Tuple[int, int]] = RESOLUTION_PROFILES["720p"]
 
 RATIO_FILE_TAGS: Dict[str, str] = {
     "16:9": "16x9",
@@ -191,7 +210,7 @@ def render_scene_segment(
     subject-aware crop, color normalization, exact duration, and optional scene-local burned captions.
     Produces a stream-copy-compatible segment cached for fast swap-a-clip.
     """
-    target_w, target_h = ASPECT_DIMENSIONS[aspect_ratio]
+    target_w, target_h = get_aspect_dimensions()[aspect_ratio]
     meta = probe_video_stream(src_video)
     src_w = int(meta["width"])
     src_h = int(meta["height"])
@@ -207,7 +226,7 @@ def render_scene_segment(
 
     filters = [
         f"crop={crop_w}:{crop_h}:{crop_x}:{crop_y}",
-        f"scale={target_w}:{target_h}:flags=lanczos",
+        f"scale={target_w}:{target_h}:flags=fast_bilinear",
         f"fps={fps}",
         "setsar=1",
     ]
@@ -268,7 +287,7 @@ def render_scene_segment(
     cmd = [
         "ffmpeg",
         "-y",
-        "-threads", "2",
+        "-threads", "1",
         *input_args,
         "-i", str(src_video.resolve()),
         *overlay_inputs,
@@ -276,10 +295,12 @@ def render_scene_segment(
         "-an",
         *filter_args,
         "-c:v", "libx264",
-        "-preset", "veryfast",
-        "-crf", "22",
-        "-profile:v", "high",
-        "-level", "4.1",
+        "-preset", "ultrafast",
+        "-tune", "fastdecode",
+        "-crf", "26",
+        "-maxrate", "2000k",
+        "-bufsize", "4000k",
+        "-profile:v", "main",
         "-pix_fmt", "yuv420p",
         "-r", str(fps),
         "-video_track_timescale", "90000",

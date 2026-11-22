@@ -6,7 +6,7 @@ import re
 import subprocess
 from typing import Any, Dict
 
-from app.pipeline.renderer import ASPECT_DIMENSIONS
+from app.pipeline.renderer import ASPECT_DIMENSIONS, get_aspect_dimensions
 
 
 def run_video_qa(
@@ -15,7 +15,7 @@ def run_video_qa(
     expected_duration: float,
     expected_fps: int = 30,
 ) -> Dict[str, Any]:
-    target_w, target_h = ASPECT_DIMENSIONS[aspect_ratio]
+    target_w, target_h = get_aspect_dimensions()[aspect_ratio]
 
     probe_cmd = [
         "ffprobe",

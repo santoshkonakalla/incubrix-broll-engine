@@ -72,6 +72,7 @@ class Settings(BaseSettings):
     max_scene_duration_seconds: float = Field(default=9.0, gt=2.0)
     stock_min_relevance_score: float = Field(default=3.5, ge=1.0, le=5.0)
     target_fps: int = Field(default=30, ge=24, le=60)
+    render_resolution: Literal["720p", "1080p"] = Field(default="720p", alias="RENDER_RESOLUTION")
     color_normalize_enabled: bool = Field(default=True)
     default_seed: int = Field(default=42)
     worker_concurrency: int = Field(default=1, ge=1, le=16)

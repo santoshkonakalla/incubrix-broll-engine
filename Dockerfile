@@ -7,7 +7,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     OMP_NUM_THREADS=1 \
     OPENBLAS_NUM_THREADS=1 \
     MKL_NUM_THREADS=1 \
-    FFMPEG_THREADS=2 \
+    FFMPEG_THREADS=1 \
+    RENDER_RESOLUTION=720p \
     WORKER_CONCURRENCY=1
 
 # System packages: FFmpeg + Noto fonts (Latin, Devanagari for Hindi, Tamil for Tamil) + OpenCV runtime libs
