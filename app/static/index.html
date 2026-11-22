@@ -94,10 +94,10 @@
         </div>
       </div>
 
-      <label>Aspect Ratios</label>
+      <label>Aspect Ratios (select one or more)</label>
       <div class="row">
-        <label style="margin:0;"><input type="checkbox" class="ratio" value="16:9" checked /> 16:9 (1080p)</label>
-        <label style="margin:0;"><input type="checkbox" class="ratio" value="9:16" checked /> 9:16 (Vertical)</label>
+        <label style="margin:0;"><input type="checkbox" class="ratio" value="16:9" checked /> 16:9 (Landscape)</label>
+        <label style="margin:0;"><input type="checkbox" class="ratio" value="9:16" /> 9:16 (Vertical Reels/Shorts)</label>
         <label style="margin:0;"><input type="checkbox" class="ratio" value="1:1" /> 1:1 (Square)</label>
         <label style="margin:0;margin-left:14px;"><input type="checkbox" id="burnIn" checked /> Burn-in Captions</label>
       </div>
@@ -141,6 +141,20 @@
 <script>
 let mode = 'script';
 let currentJobId = null;
+let pollTimer = null;
+let jobStartTime = null;
+let consecutiveErrors = 0;
+
+const STAGE_LABELS = {
+  'queued': 'Queued in worker pool',
+  'ingesting_input': 'Ingesting audio / generating voiceover',
+  'transcribing_audio': 'Transcribing speech & word timestamps',
+  'planning_scenes': 'Planning visual scenes & safety checks',
+  'selecting_footage': 'Searching & VLM ranking B-roll footage',
+  'rendering_videos': 'Normalizing & rendering video segments',
+  'assembling': 'Assembling final video with audio & captions',
+  'completed': 'Finished successfully'
+};
 
 function setMode(m, btn) {
   mode = m;
@@ -159,6 +173,7 @@ function getHeaders(extra = {}) {
 }
 
 async function submitJob() {
+  if (pollTimer) clearTimeout(pollTimer);
   const ratios = Array.from(document.querySelectorAll('.ratio:checked')).map(c => c.value);
   if (!ratios.length) { alert('Select at least one aspect ratio.'); return; }
   const avoid = document.getElementById('avoid').value.split(',').map(s => s.trim()).filter(Boolean);
@@ -171,57 +186,110 @@ async function submitJob() {
   };
 
   const idem = 'ui_' + Date.now();
+  document.getElementById('statusText').innerHTML = '<span>Submitting job to engine...</span>';
   let resp;
-  if (mode === 'upload') {
-    const fileInput = document.getElementById('audioFile');
-    if (!fileInput.files.length) { alert('Select an audio file.'); return; }
-    const fd = new FormData();
-    fd.append('audio_file', fileInput.files[0]);
-    fd.append('metadata', JSON.stringify(common));
-    resp = await fetch('/api/v1/broll/jobs/upload', { method: 'POST', headers: getHeaders({'Idempotency-Key': idem}), body: fd });
-  } else {
-    const body = { ...common };
-    if (mode === 'script') body.script = document.getElementById('scriptInput').value;
-    if (mode === 'url') body.audio_url = document.getElementById('audioUrl').value.trim();
-    if (mode === 'scenes') body.scenes = JSON.parse(document.getElementById('scenesInput').value);
-    resp = await fetch('/api/v1/broll/jobs', {
-      method: 'POST',
-      headers: getHeaders({'Content-Type': 'application/json', 'Idempotency-Key': idem}),
-      body: JSON.stringify(body)
-    });
-  }
+  try {
+    if (mode === 'upload') {
+      const fileInput = document.getElementById('audioFile');
+      if (!fileInput.files.length) { alert('Select an audio file.'); return; }
+      const fd = new FormData();
+      fd.append('audio_file', fileInput.files[0]);
+      fd.append('metadata', JSON.stringify(common));
+      resp = await fetch('/api/v1/broll/jobs/upload', { method: 'POST', headers: getHeaders({'Idempotency-Key': idem}), body: fd });
+    } else {
+      const body = { ...common };
+      if (mode === 'script') body.script = document.getElementById('scriptInput').value;
+      if (mode === 'url') body.audio_url = document.getElementById('audioUrl').value.trim();
+      if (mode === 'scenes') body.scenes = JSON.parse(document.getElementById('scenesInput').value);
+      resp = await fetch('/api/v1/broll/jobs', {
+        method: 'POST',
+        headers: getHeaders({'Content-Type': 'application/json', 'Idempotency-Key': idem}),
+        body: JSON.stringify(body)
+      });
+    }
 
-  const data = await resp.json();
-  if (!resp.ok) {
-    document.getElementById('statusText').innerHTML = '<span style="color:var(--err);">Error: ' + JSON.stringify(data) + '</span>';
-    return;
+    const data = await resp.json();
+    if (!resp.ok) {
+      document.getElementById('statusText').innerHTML = '<span style="color:var(--err);">Error: ' + JSON.stringify(data) + '</span>';
+      return;
+    }
+    currentJobId = data.job_id;
+    jobStartTime = Date.now();
+    consecutiveErrors = 0;
+    document.getElementById('jobIdLabel').textContent = currentJobId;
+    document.getElementById('videoContainer').innerHTML = '';
+    document.getElementById('linksBox').innerHTML = '';
+    document.getElementById('timelineCard').style.display = 'none';
+    pollJob(currentJobId);
+  } catch (err) {
+    document.getElementById('statusText').innerHTML = '<span style="color:var(--err);">Submission failed: ' + err.message + '</span>';
   }
-  currentJobId = data.job_id;
-  document.getElementById('jobIdLabel').textContent = currentJobId;
-  document.getElementById('videoContainer').innerHTML = '';
-  document.getElementById('linksBox').innerHTML = '';
-  document.getElementById('timelineCard').style.display = 'none';
-  pollJob(currentJobId);
 }
 
 async function pollJob(jobId) {
-  const resp = await fetch('/api/v1/jobs/' + jobId, { headers: getHeaders() });
-  const data = await resp.json();
-  document.getElementById('progressBar').style.width = (data.progress || 0) + '%';
-  document.getElementById('statusText').textContent = `${data.status.toUpperCase()} (${data.progress}%) — stage: ${data.stage}`;
+  if (pollTimer) clearTimeout(pollTimer);
+  if (!jobStartTime) jobStartTime = Date.now();
+  const elapsedSec = Math.round((Date.now() - jobStartTime) / 1000);
 
-  const wBox = document.getElementById('warningsBox');
-  wBox.innerHTML = (data.warnings || []).map(w => `<div class="pill warn">${w}</div>`).join('');
+  try {
+    const resp = await fetch('/api/v1/jobs/' + jobId, { headers: getHeaders() });
+    if (!resp.ok) {
+      consecutiveErrors++;
+      if (consecutiveErrors < 20) {
+        document.getElementById('statusText').innerHTML =
+          `<span style="color:#f59e0b;">Waiting for backend... (${elapsedSec}s elapsed, retry ${consecutiveErrors})</span>`;
+        pollTimer = setTimeout(() => pollJob(jobId), 1500);
+        return;
+      } else {
+        document.getElementById('statusText').innerHTML =
+          `<span style="color:var(--err);">Server communication error (HTTP ${resp.status}).</span>`;
+        return;
+      }
+    }
 
-  if (data.status === 'succeeded') {
-    renderResult(data);
-    return;
+    consecutiveErrors = 0;
+    const data = await resp.json();
+    if (!data || !data.status) {
+      pollTimer = setTimeout(() => pollJob(jobId), 1200);
+      return;
+    }
+
+    const progress = data.progress || 0;
+    document.getElementById('progressBar').style.width = progress + '%';
+
+    let stageDesc = STAGE_LABELS[data.stage] || data.stage || 'processing';
+    if (data.stage && data.stage.startsWith('selecting_footage_')) {
+      const parts = data.stage.replace('selecting_footage_', '').split('_of_');
+      stageDesc = `Retrieving & VLM ranking footage (Scene ${parts[0]} of ${parts[1]})`;
+    }
+
+    document.getElementById('statusText').innerHTML =
+      `<strong>${data.status.toUpperCase()} (${progress}%)</strong> — ${stageDesc} <span style="color:var(--muted);margin-left:8px;">[Elapsed: ${elapsedSec}s]</span>`;
+
+    const wBox = document.getElementById('warningsBox');
+    wBox.innerHTML = (data.warnings || []).map(w => `<div class="pill warn">${w}</div>`).join('');
+
+    if (data.status === 'succeeded') {
+      renderResult(data);
+      return;
+    }
+    if (data.status === 'failed') {
+      document.getElementById('statusText').innerHTML =
+        `<span style="color:var(--err);">FAILED (${elapsedSec}s): ${JSON.stringify(data.error_payload || data.error || 'Job failed')}</span>`;
+      return;
+    }
+    pollTimer = setTimeout(() => pollJob(jobId), 1200);
+  } catch (err) {
+    consecutiveErrors++;
+    if (consecutiveErrors < 20) {
+      document.getElementById('statusText').innerHTML =
+        `<span style="color:#f59e0b;">Network reconnecting... (${elapsedSec}s elapsed)</span>`;
+      pollTimer = setTimeout(() => pollJob(jobId), 2000);
+    } else {
+      document.getElementById('statusText').innerHTML =
+        `<span style="color:var(--err);">Connection dropped. <button class="secondary" onclick="pollJob('${jobId}')" style="padding:2px 8px;margin-left:8px;">Reconnect</button></span>`;
+    }
   }
-  if (data.status === 'failed') {
-    document.getElementById('statusText').innerHTML = '<span style="color:var(--err);">FAILED: ' + JSON.stringify(data.error) + '</span>';
-    return;
-  }
-  setTimeout(() => pollJob(jobId), 1200);
 }
 
 async function renderResult(data) {

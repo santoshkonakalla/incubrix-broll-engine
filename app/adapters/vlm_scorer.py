@@ -4,6 +4,7 @@ import base64
 import json
 from pathlib import Path
 import re
+import time
 from typing import List, Optional
 
 import cv2
@@ -45,6 +46,8 @@ class GroqVLMScorerAdapter(VLMScorerAdapter):
     """Uses Groq Llama-4 Vision (independent from Gemini planner) to rate B-roll relevance 1-5."""
 
     provider_name = "groq"
+    _circuit_open_until: float = 0.0
+    _circuit_reason: str = ""
 
     def __init__(self, api_key: str, model_name: str = "meta-llama/llama-4-scout-17b-16e-instruct") -> None:
         self.api_key = api_key
@@ -60,7 +63,7 @@ class GroqVLMScorerAdapter(VLMScorerAdapter):
         negative_keywords: List[str],
         candidate_metadata: str = "",
     ) -> VLMScoreResult:
-        if not self.api_key:
+        if not self.api_key or time.time() < GroqVLMScorerAdapter._circuit_open_until:
             return self._fallback.score_clip(
                 video_path, narration_text, visual_intent, avoid_terms, negative_keywords, candidate_metadata
             )
@@ -104,7 +107,7 @@ class GroqVLMScorerAdapter(VLMScorerAdapter):
         }
 
         try:
-            with httpx.Client(timeout=35.0) as client:
+            with httpx.Client(timeout=4.0) as client:
                 resp = client.post(
                     "https://api.groq.com/openai/v1/chat/completions",
                     headers={
@@ -115,6 +118,9 @@ class GroqVLMScorerAdapter(VLMScorerAdapter):
                 )
             if resp.status_code >= 400:
                 logger.warning("groq_vlm_http_error", status=resp.status_code)
+                if resp.status_code in (401, 403, 404, 429):
+                    GroqVLMScorerAdapter._circuit_open_until = time.time() + 120.0
+                    GroqVLMScorerAdapter._circuit_reason = f"HTTP {resp.status_code}"
                 return self._fallback.score_clip(
                     video_path, narration_text, visual_intent, avoid_terms, negative_keywords, candidate_metadata
                 )
@@ -138,6 +144,8 @@ class GroqVLMScorerAdapter(VLMScorerAdapter):
             )
         except Exception as exc:
             logger.warning("groq_vlm_fallback", error=str(exc))
+            GroqVLMScorerAdapter._circuit_open_until = time.time() + 30.0
+            GroqVLMScorerAdapter._circuit_reason = str(exc)
             return self._fallback.score_clip(
                 video_path, narration_text, visual_intent, avoid_terms, negative_keywords, candidate_metadata
             )

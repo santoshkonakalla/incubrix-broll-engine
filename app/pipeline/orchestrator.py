@@ -163,7 +163,7 @@ def _select_clip_for_scene(
 
                 if local_best is None or vlm_res.relevance_score > local_best[2].relevance_score:
                     local_best = (cand, clip_path, vlm_res)
-                if local_best[2].relevance_score >= 4.4:
+                if local_best[2].relevance_score >= max(stock_threshold, 3.8):
                     return local_best
             if local_best and local_best[2].relevance_score >= stock_threshold:
                 return local_best
@@ -193,10 +193,10 @@ def _select_clip_for_scene(
 
     # Step 1: Try stock sources first unless scene explicitly triggers statcard or abstract generative preference
     for src_name in stock_order:
-        hit = try_source_candidates(src_name, sources[src_name], queries, limit=3)
+        hit = try_source_candidates(src_name, sources[src_name], queries, limit=2)
         if hit and (best_stock is None or hit[2].relevance_score > best_stock[2].relevance_score):
             best_stock = hit
-        if best_stock and best_stock[2].relevance_score >= max(stock_threshold, 4.2):
+        if best_stock and best_stock[2].relevance_score >= stock_threshold:
             break
 
     # Step 2: Apply measurable decision rule between Stock vs Generative vs StatCard
@@ -333,7 +333,15 @@ def execute_broll_job(job_id: str, settings: Optional[Settings] = None, storage:
         update_job(job_id, progress=20, stage="transcribing_audio")
         t0 = time.perf_counter()
         asr_adapter = registry.get_asr(hint_transcript=hint_transcript)
-        asr_res = asr_adapter.transcribe(audio_path, language_hint=language)
+        try:
+            asr_res = asr_adapter.transcribe(audio_path, language_hint=language)
+        except Exception as exc:
+            if hint_transcript:
+                logger.warning("asr_live_failed_fallback_to_mock", error=str(exc))
+                from app.adapters.mock_adapters import MockASRAdapter
+                asr_res = MockASRAdapter(hint_transcript=hint_transcript).transcribe(audio_path, language_hint=language)
+            else:
+                raise
         usage_counts["asr"] = 1
         usage_costs["asr"] = asr_res.estimated_cost_usd
         if not asr_res.speech_detected or not asr_res.text.strip():

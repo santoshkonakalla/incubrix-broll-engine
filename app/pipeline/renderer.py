@@ -122,7 +122,15 @@ RATIO_FILE_TAGS: Dict[str, str] = {
 }
 
 
+_probe_cache: Dict[str, Dict[str, float | int | str]] = {}
+_color_eq_cache: Dict[str, str] = {}
+
+
 def probe_video_stream(video_path: Path) -> Dict[str, float | int | str]:
+    k = str(video_path.resolve())
+    if k in _probe_cache:
+        return _probe_cache[k]
+
     cmd = [
         "ffprobe",
         "-v", "error",
@@ -145,7 +153,7 @@ def probe_video_stream(video_path: Path) -> Dict[str, float | int | str]:
         raise AppError("RENDER_FAILED", f"Clip {video_path.name} has no video stream.", status_code=500)
     st = streams[0]
     dur = float(st.get("duration") or (data.get("format") or {}).get("duration") or 0.0)
-    return {
+    res = {
         "width": int(st.get("width") or 1920),
         "height": int(st.get("height") or 1080),
         "codec_name": str(st.get("codec_name") or ""),
@@ -153,6 +161,8 @@ def probe_video_stream(video_path: Path) -> Dict[str, float | int | str]:
         "r_frame_rate": str(st.get("r_frame_rate") or "30/1"),
         "duration": dur,
     }
+    _probe_cache[k] = res
+    return res
 
 
 def compute_color_eq_filter(video_path: Path, target_luma: float = 0.46, target_sat: float = 0.38) -> str:
@@ -160,6 +170,10 @@ def compute_color_eq_filter(video_path: Path, target_luma: float = 0.46, target_
     Measure clip average brightness & saturation and compute a gentle FFmpeg eq filter
     so clips from stock libraries and generative models visually belong to one cohesive video.
     """
+    k = f"{video_path.resolve()}_{target_luma}_{target_sat}"
+    if k in _color_eq_cache:
+        return _color_eq_cache[k]
+
     cap = cv2.VideoCapture(str(video_path))
     if not cap.isOpened():
         return "eq=contrast=1.02:saturation=1.02"
@@ -178,7 +192,9 @@ def compute_color_eq_filter(video_path: Path, target_luma: float = 0.46, target_
             sats.append(float(np.mean(hsv[:, :, 1])))
 
         if not lumas:
-            return "eq=contrast=1.02:saturation=1.02"
+            eq_val = "eq=contrast=1.02:saturation=1.02"
+            _color_eq_cache[k] = eq_val
+            return eq_val
 
         mean_luma = float(np.mean(lumas))
         mean_sat = float(np.mean(sats))
@@ -187,7 +203,9 @@ def compute_color_eq_filter(video_path: Path, target_luma: float = 0.46, target_
         brightness_delta = max(-0.12, min(0.12, (target_luma - mean_luma) * 0.45))
         sat_mult = max(0.85, min(1.18, target_sat / max(0.15, mean_sat) if mean_sat > 0.05 else 1.0))
         sat_mult = 0.6 + 0.4 * sat_mult  # damped adjustment
-        return f"eq=brightness={brightness_delta:.3f}:contrast=1.03:saturation={sat_mult:.3f}"
+        eq_val = f"eq=brightness={brightness_delta:.3f}:contrast=1.03:saturation={sat_mult:.3f}"
+        _color_eq_cache[k] = eq_val
+        return eq_val
     finally:
         cap.release()
 
