@@ -100,25 +100,53 @@ class GeminiTTSAdapter(TTSAdapter):
                 logger.warning("gemini_tts_quota_or_network_fallback", error=str(exc))
 
         if not succeeded:
-            # Resilient automatic fallback to high-quality neural Edge TTS
+            # Resilient automatic fallback to high-quality neural Edge TTS (works across threads & loops)
+            edge_voice = EDGE_VOICE_MAP.get(voice_key, "en-IN-NeerjaNeural")
+            edge_ok = False
+            tmp_mp3 = out_path.with_suffix(".edge.mp3")
             try:
                 import asyncio
                 import edge_tts
-                edge_voice = EDGE_VOICE_MAP.get(voice_key, "en-IN-NeerjaNeural")
-                tmp_mp3 = out_path.with_suffix(".edge.mp3")
-                asyncio.run(edge_tts.Communicate(text, edge_voice).save(str(tmp_mp3)))
-                subprocess.run(
-                    ["ffmpeg", "-y", "-threads", "2", "-i", str(tmp_mp3), "-ar", "24000", "-ac", "1", str(out_path)],
-                    capture_output=True,
-                    check=True,
-                )
-                if tmp_mp3.exists():
-                    tmp_mp3.unlink()
-                used_provider = "edge_tts_neural"
-                used_model = edge_voice
-                succeeded = True
-            except Exception as edge_err:
-                logger.warning("edge_tts_failed_using_offline", error=str(edge_err))
+                loop = asyncio.new_event_loop()
+                try:
+                    asyncio.set_event_loop(loop)
+                    loop.run_until_complete(edge_tts.Communicate(text, edge_voice).save(str(tmp_mp3)))
+                    edge_ok = tmp_mp3.exists() and tmp_mp3.stat().st_size > 1000
+                finally:
+                    loop.close()
+            except Exception as e_loop:
+                logger.warning("edge_tts_loop_failed_trying_cli", error=str(e_loop))
+
+            if not edge_ok:
+                try:
+                    subprocess.run(
+                        ["edge-tts", "--text", text, "--write-media", str(tmp_mp3), "--voice", edge_voice],
+                        capture_output=True,
+                        check=True,
+                        timeout=30,
+                    )
+                    edge_ok = tmp_mp3.exists() and tmp_mp3.stat().st_size > 1000
+                except Exception as e_cli:
+                    logger.warning("edge_tts_cli_failed", error=str(e_cli))
+
+            if edge_ok:
+                try:
+                    subprocess.run(
+                        ["ffmpeg", "-y", "-threads", "1", "-i", str(tmp_mp3), "-ar", "24000", "-ac", "1", str(out_path)],
+                        capture_output=True,
+                        check=True,
+                        timeout=30,
+                    )
+                    if tmp_mp3.exists():
+                        tmp_mp3.unlink()
+                    used_provider = "edge_tts_neural"
+                    used_model = edge_voice
+                    succeeded = True
+                except Exception as conv_err:
+                    logger.warning("edge_tts_convert_failed", error=str(conv_err))
+
+            if not succeeded:
+                logger.warning("edge_tts_failed_using_offline")
                 synthesize_speech_like_wav(text, out_path, sample_rate=24000)
                 used_provider = "offline_speech_synth"
                 used_model = "speech_cadence_v1"

@@ -116,6 +116,8 @@ def generate_mock_video_clip(
 
             # Distinct spatial background geometry per seed (for realistic perceptual dHash variation)
             is_tech = any(k in label.lower() for k in ("robot", "ai", "intelligence", "tech", "computer", "cloud", "code", "python", "smart"))
+            is_nature = any(k in label.lower() for k in ("planet", "earth", "nature", "tree", "trees", "water", "forest", "green", "environment", "plastic", "waste", "recycle", "solar", "garden", "wildlife", "climate", "ocean", "river"))
+
             if is_tech:
                 frame[:, :] = (26, 20, 14)  # Deep cyber dark navy
                 # High-tech digital grid
@@ -128,6 +130,13 @@ def generate_mock_video_clip(
                     pulse = int(12 * math.sin(t * 6 + n_idx))
                     cv2.circle(frame, (nx, ny), 7, (255, 200, 40), -1)
                     cv2.circle(frame, (nx, ny), 14 + pulse // 3, (120, 90, 20), 1)
+            elif is_nature:
+                # Lush organic gradient
+                for gy in range(height):
+                    frac = gy / float(height)
+                    frame[gy, :] = (int(32 + 18 * frac), int(68 + 42 * frac), int(26 + 18 * frac))
+                # Sun / atmosphere warmth in corner
+                cv2.circle(frame, (int(width * 0.15), int(height * 0.18)), 80, (140, 230, 255), -1)
             elif edge_subject_x is None:
                 if layout_variant == 0:
                     cv2.rectangle(frame, (0, int(height * 0.62)), (width, height), (base_b // 2, base_g // 2, base_r // 2), -1)
@@ -162,13 +171,41 @@ def generate_mock_video_clip(
                 # Antenna
                 cv2.line(frame, (cx, cy - 42), (cx, cy - 68), (195, 185, 175), 3)
                 cv2.circle(frame, (cx, cy - 70), 7, (255, 120, 0), -1)
+            elif is_nature and any(k in label.lower() for k in ("planet", "earth", "globe")):
+                # Animated Earth Globe with continents and blue oceans
+                rot_offset = int(25 * math.sin(t * 2 * math.pi))
+                cv2.circle(frame, (cx, cy), 125, (215, 135, 30), -1) # Blue ocean
+                cv2.ellipse(frame, (cx - 30 + rot_offset, cy - 20), (55, 38), 20, 0, 360, (50, 185, 70), -1)
+                cv2.ellipse(frame, (cx + 45 + rot_offset, cy + 30), (45, 32), -15, 0, 360, (50, 185, 70), -1)
+                cv2.circle(frame, (cx - 20 + rot_offset, cy + 60), 24, (50, 185, 70), -1)
+                cv2.circle(frame, (cx, cy), 130, (255, 225, 130), 3) # Atmosphere glow
+            elif is_nature:
+                # Tree with lush green canopy and brown trunk
+                sway = int(8 * math.sin(t * 4 * math.pi))
+                cv2.rectangle(frame, (cx - 20, cy), (cx + 20, cy + 160), (30, 60, 110), -1)
+                cv2.circle(frame, (cx + sway, cy - 50), 90, (40, 160, 60), -1)
+                cv2.circle(frame, (cx - 55 + sway, cy - 25), 72, (45, 185, 75), -1)
+                cv2.circle(frame, (cx + 55 + sway, cy - 25), 72, (45, 185, 75), -1)
+                cv2.circle(frame, (cx + sway, cy - 85), 68, (60, 215, 95), -1)
             else:
                 cv2.circle(frame, (cx, cy), 95, (255, 245, 220), -1)
                 cv2.circle(frame, (cx, cy), 60, (40, 210, 120), -1)
                 cv2.rectangle(frame, (cx - 42, cy - 28), (cx + 42, cy + 28), (20, 40, 90), 5)
 
             # Elegant scene title pill badge
-            title_text = label[:45]
+            if is_nature and any(k in label.lower() for k in ("planet", "earth")):
+                title_text = "Protecting Our Planet Earth"
+            elif is_nature and any(k in label.lower() for k in ("tree", "forest", "woodland", "plant")):
+                title_text = "Planting Trees & Preserving Nature"
+            elif is_nature and any(k in label.lower() for k in ("water", "ocean", "river")):
+                title_text = "Saving Water & Clean Rivers"
+            elif is_tech and "robot" in label.lower():
+                title_text = "Robotics & Everyday AI"
+            elif is_tech:
+                title_text = "Artificial Intelligence & Technology"
+            else:
+                clean_lbl = re.sub(r"^[a-zA-Z0-9_\-]+:\s*", "", label).strip().title()
+                title_text = clean_lbl[:45]
             pill_w = min(width - 40, max(280, len(title_text) * 14 + 40))
             px0 = max(20, (width - pill_w) // 2)
             cv2.rectangle(frame, (px0, height - 68), (px0 + pill_w, height - 20), (12, 14, 20), -1)
@@ -241,25 +278,49 @@ class MockTTSAdapter(TTSAdapter):
 
             out_path.parent.mkdir(parents=True, exist_ok=True)
             tmp_mp3 = out_path.with_suffix(".edge.mp3")
-            asyncio.run(edge_tts.Communicate(text, edge_voice).save(str(tmp_mp3)))
-            proc = subprocess.run(
-                ["ffmpeg", "-y", "-threads", "1", "-i", str(tmp_mp3), "-ar", "24000", "-ac", "1", str(out_path)],
-                capture_output=True,
-                check=True,
-                timeout=45,
-            )
-            if tmp_mp3.exists():
-                tmp_mp3.unlink()
-            dur = _measure_wav_duration(out_path)
-            if dur >= 0.5:
-                return TTSResult(
-                    audio_path=out_path,
-                    duration_seconds=dur,
-                    language=lang,
-                    provider="edge_tts_neural",
-                    model=edge_voice,
-                    estimated_cost_usd=0.0,
+            edge_ok = False
+            try:
+                loop = asyncio.new_event_loop()
+                try:
+                    asyncio.set_event_loop(loop)
+                    loop.run_until_complete(edge_tts.Communicate(text, edge_voice).save(str(tmp_mp3)))
+                    edge_ok = tmp_mp3.exists() and tmp_mp3.stat().st_size > 1000
+                finally:
+                    loop.close()
+            except Exception:
+                pass
+
+            if not edge_ok:
+                try:
+                    subprocess.run(
+                        ["edge-tts", "--text", text, "--write-media", str(tmp_mp3), "--voice", edge_voice],
+                        capture_output=True,
+                        check=True,
+                        timeout=30,
+                    )
+                    edge_ok = tmp_mp3.exists() and tmp_mp3.stat().st_size > 1000
+                except Exception:
+                    pass
+
+            if edge_ok:
+                proc = subprocess.run(
+                    ["ffmpeg", "-y", "-threads", "1", "-i", str(tmp_mp3), "-ar", "24000", "-ac", "1", str(out_path)],
+                    capture_output=True,
+                    check=True,
+                    timeout=45,
                 )
+                if tmp_mp3.exists():
+                    tmp_mp3.unlink()
+                dur = _measure_wav_duration(out_path)
+                if dur >= 0.5:
+                    return TTSResult(
+                        audio_path=out_path,
+                        duration_seconds=dur,
+                        language=lang,
+                        provider="edge_tts_neural",
+                        model=edge_voice,
+                        estimated_cost_usd=0.0,
+                    )
         except Exception:
             pass
 
@@ -432,6 +493,51 @@ def align_explicit_scenes_to_duration(
     return aligned
 
 
+def extract_visual_search_query(text: str) -> str:
+    """
+    Extract high-precision visual concepts, mapping narrative abstractions into concrete video search queries.
+    Prevents abstract trap words ('protecting', 'responsibility', 'everyone') from matching irrelevant videos.
+    """
+    t = text.lower()
+
+    # 1. Nature / Planet / Environmental domain
+    if any(k in t for k in ("planet", "earth", "globe", "world")):
+        return "planet earth"
+    if any(k in t for k in ("tree", "trees", "plant", "planting", "forest", "woodland", "canopy", "leaves")):
+        return "nature forest"
+    if any(k in t for k in ("water", "ocean", "river", "sea", "lake", "saving water")):
+        return "water ocean nature"
+    if any(k in t for k in ("plastic", "waste", "recycle", "recycling", "pollution", "clean")):
+        return "recycling environment"
+    if any(k in t for k in ("nature", "green", "environment", "eco", "wildlife", "garden")):
+        return "nature green"
+
+    # 2. Technology / Robotics / AI domain
+    if any(k in t for k in ("robot", "robotics", "bot", "android", "cyborg", "humanoid")):
+        return "robot"
+    if any(k in t for k in ("artificial intelligence", "ai", "machine learning", "neural")):
+        return "artificial intelligence"
+    if any(k in t for k in ("computer", "software", "code", "coding", "developer", "cloud")):
+        return "computer technology"
+
+    # 3. Finance / Business domain
+    if any(k in t for k in ("finance", "money", "budget", "saving", "savings", "growth", "invest", "wealth", "banking")):
+        return "finance business"
+
+    # 4. Filter abstract words and pick top concrete nouns
+    stop = {
+        "the", "and", "for", "that", "this", "with", "from", "your", "have", "will",
+        "into", "about", "they", "their", "when", "every", "protecting", "protect",
+        "responsibility", "everyone", "create", "better", "future", "everyday",
+        "makes", "work", "life", "helping", "help", "having", "what", "which",
+        "where", "could", "would", "should", "starts", "simple", "daily", "choices",
+        "clearly", "grows", "today", "tomorrow", "easier", "faster", "smarter",
+        "various", "things", "ways", "important", "crucial", "essential", "needs", "need"
+    }
+    kws = [w for w in re.findall(r"[a-zA-Z]{4,}", t) if w not in stop]
+    return " ".join(kws[:3]) if kws else "modern lifestyle nature"
+
+
 class MockScenePlannerAdapter(ScenePlannerAdapter):
     provider_name = "mock"
     model_name = "mock-semantic-planner-v1"
@@ -467,10 +573,7 @@ class MockScenePlannerAdapter(ScenePlannerAdapter):
             elif safety.has_statistics:
                 query = "modern business analytics dashboard growth chart workspace"
             else:
-                # Extract top meaningful content words
-                stop = {"the", "and", "for", "that", "this", "with", "from", "your", "have", "will", "into", "about", "they", "their", "when", "every"}
-                kws = [w for w in re.findall(r"[a-zA-Z]{4,}", text.lower()) if w not in stop]
-                query = " ".join(kws[:4]) if kws else "modern lifestyle workspace sunlit"
+                query = extract_visual_search_query(text)
 
             planned.append(
                 PlannedScene(
@@ -502,49 +605,56 @@ def _try_fetch_wikimedia_video(query: str, out_path: Path, duration_needed: floa
     try:
         import httpx
         import urllib.parse
-        # Extract the most descriptive keyword
-        stop = {"the", "and", "for", "with", "this", "that", "from", "your", "into", "help", "helping", "makes", "life", "everyday"}
-        terms = [w for w in re.findall(r"[a-zA-Z]{4,}", query.lower()) if w not in stop]
-        if not terms:
-            return False
-        search_q = terms[0]
-
-        api_url = f"https://commons.wikimedia.org/w/api.php?action=query&format=json&list=search&srsearch={urllib.parse.quote(search_q)}+filetype:video&srnamespace=6&srlimit=3"
+        search_q = extract_visual_search_query(query)
+        api_url = f"https://commons.wikimedia.org/w/api.php?action=query&format=json&list=search&srsearch={urllib.parse.quote(search_q)}+filetype:video&srnamespace=6&srlimit=4"
         headers = {"User-Agent": "IncuBrixBrollEngine/1.0 (santoshkonakalla7@gmail.com)"}
-        with httpx.Client(headers=headers, follow_redirects=True, timeout=6.0) as client:
+        with httpx.Client(headers=headers, follow_redirects=True, timeout=8.0) as client:
             resp = client.get(api_url)
             if resp.status_code != 200:
                 return False
             hits = resp.json().get("query", {}).get("search", [])
             for hit in hits:
                 title = hit.get("title", "")
-                iurl = f"https://commons.wikimedia.org/w/api.php?action=query&format=json&titles={urllib.parse.quote(title)}&prop=imageinfo&iiprop=url"
-                iresp = client.get(iurl)
-                if iresp.status_code != 200:
+                if any(bad in title.lower() for bad in ("whooping", "pregnant", "cough", "syndrome", "symptom", "infant")):
                     continue
-                pages = iresp.json().get("query", {}).get("pages", {})
+                vinfo_url = f"https://commons.wikimedia.org/w/api.php?action=query&format=json&titles={urllib.parse.quote(title)}&prop=videoinfo&viprop=url|size|derivatives"
+                vres = client.get(vinfo_url)
+                if vres.status_code != 200:
+                    continue
+                pages = vres.json().get("query", {}).get("pages", {})
                 for pid, p in pages.items():
-                    info = p.get("imageinfo", [{}])[0]
-                    vurl = info.get("url", "")
-                    if vurl and (vurl.endswith(".webm") or vurl.endswith(".mp4")):
-                        tmp_src = out_path.with_suffix(".src" + Path(vurl).suffix)
-                        r = client.get(vurl)
-                        if len(r.content) > 10000:
-                            tmp_src.write_bytes(r.content)
-                            out_path.parent.mkdir(parents=True, exist_ok=True)
-                            subprocess.run(
-                                [
-                                    "ffmpeg", "-y", "-threads", "1",
-                                    "-i", str(tmp_src),
-                                    "-c:v", "libx264", "-preset", "ultrafast", "-crf", "26",
-                                    "-pix_fmt", "yuv420p", "-t", str(max(duration_needed + 0.5, 4.0)),
-                                    "-an", str(out_path)
-                                ],
-                                capture_output=True,
-                                check=True,
-                                timeout=45,
-                            )
-                            tmp_src.unlink(missing_ok=True)
+                    vinfo = p.get("videoinfo", [{}])[0]
+                    derivs = vinfo.get("derivatives", [])
+                    target_url = None
+                    for d in derivs:
+                        h = d.get("height", 0)
+                        if 360 <= h <= 720:
+                            target_url = d.get("src")
+                            break
+                    if not target_url and derivs:
+                        target_url = derivs[0].get("src")
+                    if not target_url:
+                        target_url = vinfo.get("url")
+
+                    if not target_url:
+                        continue
+
+                    seek = "10" if any(k in search_q.lower() for k in ("earth", "planet", "forest", "nature")) else "2"
+                    out_path.parent.mkdir(parents=True, exist_ok=True)
+                    cmd = [
+                        "ffmpeg", "-y", "-threads", "1",
+                        "-headers", "User-Agent: IncuBrixBrollEngine/1.0 (santoshkonakalla7@gmail.com)\r\n",
+                        "-ss", seek, "-t", str(max(duration_needed + 0.5, 4.0)),
+                        "-i", target_url,
+                        "-c:v", "libx264", "-preset", "ultrafast", "-crf", "26",
+                        "-pix_fmt", "yuv420p", "-an", str(out_path),
+                    ]
+                    res = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+                    if res.returncode == 0 and out_path.exists() and out_path.stat().st_size > 20000:
+                        cap = cv2.VideoCapture(str(out_path))
+                        ret, frame = cap.read()
+                        cap.release()
+                        if ret and frame.mean() > 15.0:
                             return True
         return False
     except Exception:

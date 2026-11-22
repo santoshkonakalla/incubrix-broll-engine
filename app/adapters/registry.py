@@ -66,21 +66,18 @@ class AdapterRegistry:
             if name in self.runtime_disabled:
                 continue
             if name == "pexels":
-                if is_mock or not self.settings.pexels_api_key:
-                    if is_mock:
-                        sources["pexels"] = MockStockFootageAdapter("pexels", is_generative=False)
+                if not self.settings.pexels_api_key:
+                    sources["pexels"] = MockStockFootageAdapter("pexels", is_generative=False)
                 else:
                     sources["pexels"] = PexelsFootageAdapter(self.settings.pexels_api_key)
             elif name == "pixabay":
-                if is_mock or not self.settings.pixabay_api_key:
-                    if is_mock:
-                        sources["pixabay"] = MockStockFootageAdapter("pixabay", is_generative=False)
+                if not self.settings.pixabay_api_key:
+                    sources["pixabay"] = MockStockFootageAdapter("pixabay", is_generative=False)
                 else:
                     sources["pixabay"] = PixabayFootageAdapter(self.settings.pixabay_api_key)
             elif name == "generative":
-                if is_mock or not self.settings.gemini_api_key:
-                    if is_mock:
-                        sources["generative"] = MockStockFootageAdapter("generative", is_generative=True)
+                if not self.settings.gemini_api_key:
+                    sources["generative"] = MockStockFootageAdapter("generative", is_generative=True)
                 else:
                     sources["generative"] = GeminiGenerativeFootageAdapter(
                         self.settings.gemini_api_key, self.settings.gemini_image_model
