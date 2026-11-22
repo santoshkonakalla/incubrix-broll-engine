@@ -127,7 +127,7 @@ def _select_clip_for_scene(
             for cand in cands:
                 if cand.watermarked or not cand.commercial_use_allowed:
                     continue
-                if dedup.is_duplicate_metadata(cand.clip_id, cand.source_url):
+                if cand.source != "statcard" and dedup.is_duplicate_metadata(cand.clip_id, cand.source_url):
                     continue
                 meta_blob = f"{cand.description} {' '.join(cand.tags)}"
                 if violates_avoid_list(meta_blob, avoid_terms, scene.negative_keywords):
@@ -145,7 +145,7 @@ def _select_clip_for_scene(
                     clip_path.unlink(missing_ok=True)
                     continue
 
-                if dedup.is_duplicate_visual(clip_path):
+                if cand.source != "statcard" and dedup.is_duplicate_visual(clip_path):
                     continue
 
                 usage_counts["vlm_scorer"] = usage_counts.get("vlm_scorer", 0) + 1

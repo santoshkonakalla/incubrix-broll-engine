@@ -191,7 +191,7 @@ class StatCardFootageAdapter(FootageSourceAdapter):
                 clip_id=clip_id,
                 source=self.source_name,
                 download_url=f"local://{out_path}",
-                source_url="https://incubrix.local/programmatic-motion-card",
+                source_url=f"https://incubrix.local/programmatic-motion-card/{clip_id}",
                 licence="MIT / Engine-Generated Original Graphic (Commercial Use Allowed)",
                 attribution="Generated programmatically by IncuBrix B-roll Engine",
                 duration=max(duration_needed + 0.5, 3.0),
