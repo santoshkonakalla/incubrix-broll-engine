@@ -2,7 +2,17 @@
 
 import os
 from pathlib import Path
+import sys
 import time
+
+if sys.platform == "win32":
+    _gyan_path = r"C:\Users\santo\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg.Essentials_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-9.0.2-essentials_build\bin"
+    _cur_items = [p for p in os.environ.get("PATH", "").split(";") if p.strip()]
+    _filtered = [p for p in _cur_items if "incubrix\\library\\bin" not in p.lower()]
+    if Path(_gyan_path).exists():
+        os.environ["PATH"] = _gyan_path + ";" + ";".join(_filtered)
+    else:
+        os.environ["PATH"] = ";".join(_filtered)
 
 import pytest
 from fastapi.testclient import TestClient
@@ -30,20 +40,12 @@ def test_env(tmp_path_factory):
     for k, v in env_vars.items():
         os.environ[k] = v
 
-    # Ensure Gyan FFmpeg and conda env's libraries are on PATH if running on Windows
-    conda_paths = [
-        r"C:\Users\santo\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg.Essentials_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-9.0.2-essentials_build\bin",
-        r"C:\Users\santo\miniconda3\envs\incubrix",
-        r"C:\Users\santo\miniconda3\envs\incubrix\Scripts",
-        r"C:\Users\santo\miniconda3\envs\incubrix\Library\bin",
-        r"C:\Users\santo\miniconda3\envs\incubrix\Library\usr\bin",
-        r"C:\Users\santo\miniconda3\envs\incubrix\Library\mingw-w64\bin",
-        r"C:\Users\santo\miniconda3\envs\incubrix\bin",
-    ]
-    cur_path = os.environ.get("PATH", "")
-    new_parts = [p for p in conda_paths if Path(p).exists() and p not in cur_path]
-    if new_parts:
-        os.environ["PATH"] = ";".join(new_parts) + ";" + cur_path
+    # Ensure Gyan FFmpeg is on PATH on Windows without broken conda ffmpeg
+    if sys.platform == "win32":
+        gyan = r"C:\Users\santo\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg.Essentials_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-9.0.2-essentials_build\bin"
+        cur_parts = [p for p in os.environ.get("PATH", "").split(";") if "incubrix\\library\\bin" not in p.lower() and p.strip()]
+        if Path(gyan).exists():
+            os.environ["PATH"] = gyan + ";" + ";".join(cur_parts)
 
     from app.config import get_settings
     from app.db import init_db

@@ -29,17 +29,110 @@ VOICE_PRESETS: Dict[str, Tuple[str, str]] = {
     "ta-in-male": ("Puck", "clear, steady Tamil narration"),
 }
 
-EDGE_VOICE_MAP: Dict[str, str] = {
-    "en-in-female": "en-IN-NeerjaNeural",
-    "en-in-male": "en-IN-PrabhatNeural",
-    "en-us-female": "en-US-JennyNeural",
-    "en-us-male": "en-US-GuyNeural",
-    "en-gb-female": "en-GB-SoniaNeural",
-    "hi-in-female": "hi-IN-SwaraNeural",
-    "hi-in-male": "hi-IN-MadhurNeural",
-    "ta-in-female": "ta-IN-PallaviNeural",
-    "ta-in-male": "ta-IN-ValluvarNeural",
-}
+def resolve_edge_voice(voice: str, lang: str = "en") -> str:
+    """Resolve user-requested voice into exact Microsoft Neural Edge-TTS voice identifier."""
+    v = (voice or "").strip()
+    v_lower = v.lower()
+
+    # Exact neural voice names
+    known = {
+        "en-us-jennyneural": "en-US-JennyNeural",
+        "en-us-guyneural": "en-US-GuyNeural",
+        "en-us-arianeural": "en-US-AriaNeural",
+        "en-us-christopherneural": "en-US-ChristopherNeural",
+        "en-in-neerjaneural": "en-IN-NeerjaNeural",
+        "en-in-prabhatneural": "en-IN-PrabhatNeural",
+        "en-gb-sonianeural": "en-GB-SoniaNeural",
+        "en-gb-ryanneural": "en-GB-RyanNeural",
+        "hi-in-swaraneural": "hi-IN-SwaraNeural",
+        "hi-in-madhurneural": "hi-IN-MadhurNeural",
+        "ta-in-pallavineural": "ta-IN-PallaviNeural",
+        "ta-in-valluvarneural": "ta-IN-ValluvarNeural",
+    }
+    if v_lower in known:
+        return known[v_lower]
+
+    key_map = {
+        "en-in-female": "en-IN-NeerjaNeural",
+        "en-in-male": "en-IN-PrabhatNeural",
+        "en-us-female": "en-US-JennyNeural",
+        "en-us-male": "en-US-GuyNeural",
+        "en-gb-female": "en-GB-SoniaNeural",
+        "en-gb-male": "en-GB-RyanNeural",
+        "hi-in-female": "hi-IN-SwaraNeural",
+        "hi-in-male": "hi-IN-MadhurNeural",
+        "ta-in-female": "ta-IN-PallaviNeural",
+        "ta-in-male": "ta-IN-ValluvarNeural",
+    }
+    if v_lower in key_map:
+        return key_map[v_lower]
+
+    # Gender & language heuristics
+    is_male = any(m in v_lower for m in ("male", "man", "guy", "prabhat", "madhur", "ryan", "christopher", "boy"))
+    if lang.startswith("hi") or "hindi" in v_lower:
+        return "hi-IN-MadhurNeural" if is_male else "hi-IN-SwaraNeural"
+    if lang.startswith("ta") or "tamil" in v_lower:
+        return "ta-IN-ValluvarNeural" if is_male else "ta-IN-PallaviNeural"
+    if "in" in v_lower or lang.startswith("en-in") or "india" in v_lower:
+        return "en-IN-PrabhatNeural" if is_male else "en-IN-NeerjaNeural"
+    if "gb" in v_lower or "uk" in v_lower or "british" in v_lower:
+        return "en-GB-RyanNeural" if is_male else "en-GB-SoniaNeural"
+    return "en-US-GuyNeural" if is_male else "en-US-JennyNeural"
+
+
+def synthesize_edge_tts(text: str, voice_name: str, out_wav_path: Path) -> bool:
+    """Robust Edge-TTS synthesis that works reliably inside threads, processes, and async loops."""
+    out_wav_path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_mp3 = out_wav_path.with_suffix(".edge.mp3")
+    edge_ok = False
+
+    # Method 1: New isolated event loop (avoids event loop conflict in worker threads)
+    try:
+        import asyncio
+        import edge_tts
+        loop = asyncio.new_event_loop()
+        try:
+            asyncio.set_event_loop(loop)
+            loop.run_until_complete(edge_tts.Communicate(text, voice_name).save(str(tmp_mp3)))
+            edge_ok = tmp_mp3.exists() and tmp_mp3.stat().st_size > 1000
+        finally:
+            loop.close()
+    except Exception as e_loop:
+        logger.warning("edge_tts_loop_failed_trying_cli", error=str(e_loop))
+
+    # Method 2: edge-tts CLI subprocess (zero thread/loop interference)
+    if not edge_ok:
+        try:
+            subprocess.run(
+                ["edge-tts", "--text", text, "--write-media", str(tmp_mp3), "--voice", voice_name],
+                capture_output=True,
+                check=True,
+                timeout=35,
+            )
+            edge_ok = tmp_mp3.exists() and tmp_mp3.stat().st_size > 1000
+        except Exception as e_cli:
+            logger.warning("edge_tts_cli_failed", error=str(e_cli))
+
+    if not edge_ok:
+        return False
+
+    # Convert MP3 to standard 24kHz mono PCM WAV
+    try:
+        res = subprocess.run(
+            ["ffmpeg", "-y", "-threads", "1", "-i", str(tmp_mp3), "-ar", "24000", "-ac", "1", str(out_wav_path)],
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=30,
+        )
+        tmp_mp3.unlink(missing_ok=True)
+        return out_wav_path.exists() and out_wav_path.stat().st_size > 5000
+    except subprocess.CalledProcessError as conv_err:
+        logger.warning("edge_tts_convert_failed", error=str(conv_err), stderr=conv_err.stderr[:400] if conv_err.stderr else "")
+        return False
+    except Exception as conv_err:
+        logger.warning("edge_tts_convert_failed", error=str(conv_err))
+        return False
 
 
 class GeminiTTSAdapter(TTSAdapter):
@@ -101,51 +194,16 @@ class GeminiTTSAdapter(TTSAdapter):
 
         if not succeeded:
             # Resilient automatic fallback to high-quality neural Edge TTS (works across threads & loops)
-            edge_voice = EDGE_VOICE_MAP.get(voice_key, "en-IN-NeerjaNeural")
-            edge_ok = False
-            tmp_mp3 = out_path.with_suffix(".edge.mp3")
-            try:
-                import asyncio
-                import edge_tts
-                loop = asyncio.new_event_loop()
-                try:
-                    asyncio.set_event_loop(loop)
-                    loop.run_until_complete(edge_tts.Communicate(text, edge_voice).save(str(tmp_mp3)))
-                    edge_ok = tmp_mp3.exists() and tmp_mp3.stat().st_size > 1000
-                finally:
-                    loop.close()
-            except Exception as e_loop:
-                logger.warning("edge_tts_loop_failed_trying_cli", error=str(e_loop))
-
-            if not edge_ok:
-                try:
-                    subprocess.run(
-                        ["edge-tts", "--text", text, "--write-media", str(tmp_mp3), "--voice", edge_voice],
-                        capture_output=True,
-                        check=True,
-                        timeout=30,
-                    )
-                    edge_ok = tmp_mp3.exists() and tmp_mp3.stat().st_size > 1000
-                except Exception as e_cli:
-                    logger.warning("edge_tts_cli_failed", error=str(e_cli))
-
-            if edge_ok:
-                try:
-                    subprocess.run(
-                        ["ffmpeg", "-y", "-threads", "1", "-i", str(tmp_mp3), "-ar", "24000", "-ac", "1", str(out_path)],
-                        capture_output=True,
-                        check=True,
-                        timeout=30,
-                    )
-                    if tmp_mp3.exists():
-                        tmp_mp3.unlink()
-                    used_provider = "edge_tts_neural"
-                    used_model = edge_voice
-                    succeeded = True
-                except Exception as conv_err:
-                    logger.warning("edge_tts_convert_failed", error=str(conv_err))
-
-            if not succeeded:
+            edge_voice = resolve_edge_voice(voice_key, lang)
+            if synthesize_edge_tts(text, edge_voice, out_path):
+                used_provider = "edge_tts_neural"
+                used_model = edge_voice
+                succeeded = True
+            elif synthesize_edge_tts(text, "en-US-JennyNeural", out_path):
+                used_provider = "edge_tts_neural"
+                used_model = "en-US-JennyNeural"
+                succeeded = True
+            else:
                 logger.warning("edge_tts_failed_using_offline")
                 synthesize_speech_like_wav(text, out_path, sample_rate=24000)
                 used_provider = "offline_speech_synth"

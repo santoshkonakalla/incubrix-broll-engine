@@ -7,19 +7,14 @@ import sys
 from typing import List, Literal
 
 if sys.platform == "win32":
-    _custom_paths = [
-        r"C:\Users\santo\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg.Essentials_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-9.0.2-essentials_build\bin",
-        r"C:\Users\santo\miniconda3\envs\incubrix",
-        r"C:\Users\santo\miniconda3\envs\incubrix\Scripts",
-        r"C:\Users\santo\miniconda3\envs\incubrix\Library\bin",
-        r"C:\Users\santo\miniconda3\envs\incubrix\Library\usr\bin",
-        r"C:\Users\santo\miniconda3\envs\incubrix\Library\mingw-w64\bin",
-        r"C:\Users\santo\miniconda3\envs\incubrix\bin",
-    ]
-    _cur = os.environ.get("PATH", "")
-    _missing = [p for p in _custom_paths if Path(p).exists() and p not in _cur]
-    if _missing:
-        os.environ["PATH"] = ";".join(_missing) + ";" + _cur
+    _gyan_path = r"C:\Users\santo\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg.Essentials_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-9.0.2-essentials_build\bin"
+    _cur_items = [p for p in os.environ.get("PATH", "").split(";") if p.strip()]
+    # Ensure working Gyan FFmpeg takes highest priority over broken conda Library\bin\ffmpeg.exe
+    _filtered = [p for p in _cur_items if "incubrix\\library\\bin" not in p.lower()]
+    if Path(_gyan_path).exists():
+        os.environ["PATH"] = _gyan_path + ";" + ";".join(_filtered)
+    else:
+        os.environ["PATH"] = ";".join(_filtered)
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict

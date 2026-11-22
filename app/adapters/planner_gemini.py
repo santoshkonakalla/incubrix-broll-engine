@@ -10,6 +10,7 @@ from app.adapters.base import PlannedScene, ScenePlannerAdapter
 from app.adapters.mock_adapters import (
     MockScenePlannerAdapter,
     align_explicit_scenes_to_duration,
+    extract_visual_search_query,
     segment_words_into_scenes,
 )
 from app.logging_config import get_logger
@@ -128,8 +129,8 @@ class GeminiScenePlannerAdapter(ScenePlannerAdapter):
                 disambig = llm_item.disambiguation_notes
                 prefer_gen = llm_item.prefer_generative and not safety.block_ai_generation
             else:
-                search_query = hint or safety.suggested_visual_override or "modern lifestyle workspace sunlit"
-                alt_queries = ["calm everyday modern scene wide shot"]
+                search_query = hint or safety.suggested_visual_override or extract_visual_search_query(text)
+                alt_queries = [f"{search_query} cinematic wide", f"{search_query} professional documentary"]
                 gen_prompt = f"{search_query}, {style}, photorealistic, no text, no logos"
                 disambig = "; ".join(safety.homonym_resolutions) if safety.homonym_resolutions else None
                 prefer_gen = bool(safety.is_abstract and not safety.block_ai_generation)

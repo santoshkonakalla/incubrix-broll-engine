@@ -15,7 +15,7 @@ KNOWN_BRANDS = {
 }
 
 BRAND_GENERIC_VISUALS: Dict[str, str] = {
-    "apple": "minimalist modern smartphone on clean wooden desk without logo",
+    "apple": "minimalist modern smartphone on clean wooden desk",
     "iphone": "sleek modern smartphone held in hand close-up screen side",
     "macbook": "modern silver laptop open on minimal desk workspace",
     "google": "person searching on clean web browser screen modern office",
