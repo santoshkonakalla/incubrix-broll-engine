@@ -89,12 +89,17 @@ class GeminiGenerativeFootageAdapter(FootageSourceAdapter):
         w, h = (1280, 720) if aspect == "16:9" else (720, 1280)
 
         try:
-            client = genai.Client(api_key=self.api_key, http_options={"timeout": 5.0})
-            interaction = client.interactions.create(
-                model=self.model_name,
-                input=full_prompt,
-                response_format={"type": "image", "aspect_ratio": aspect},
-            )
+            import concurrent.futures
+            def _call_gemini():
+                client = genai.Client(api_key=self.api_key)
+                return client.interactions.create(
+                    model=self.model_name,
+                    input=full_prompt,
+                    response_format={"type": "image", "aspect_ratio": aspect},
+                )
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                future = pool.submit(_call_gemini)
+                interaction = future.result(timeout=10.0)
         except Exception as exc:
             raise AppError(
                 "PROVIDER_UNAVAILABLE",

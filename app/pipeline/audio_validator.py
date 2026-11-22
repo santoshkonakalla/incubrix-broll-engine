@@ -192,7 +192,7 @@ def probe_and_validate_audio(
 def _measure_volume_db(file_path: Path) -> Tuple[float, float]:
     cmd = [
         "ffmpeg",
-        "-threads", "2",
+        "-threads", "1",
         "-i", str(file_path),
         "-af", "volumedetect",
         "-f", "null",

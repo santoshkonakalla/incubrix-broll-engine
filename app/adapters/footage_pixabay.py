@@ -47,7 +47,7 @@ class PixabayFootageAdapter(FootageSourceAdapter):
             raise AppError("PROVIDER_UNAVAILABLE", f"Pixabay search error: {exc}", status_code=503, retryable=True) from exc
 
         if resp.status_code >= 400:
-            raise AppError("PROVIDER_UNAVAILABLE", f"Pixabay returned HTTP {resp.status_code}", status_code=503, retryable=True)
+            raise AppError("PROVIDER_UNAVAILABLE", f"Pixabay returned HTTP {resp.status_code}", status_code=503, retryable=False)
 
         hits = resp.json().get("hits") or []
         candidates: List[FootageCandidate] = []

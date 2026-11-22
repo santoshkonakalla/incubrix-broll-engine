@@ -343,7 +343,7 @@ def assemble_video_from_segments(
     cmd = [
         "ffmpeg",
         "-y",
-        "-threads", "2",
+        "-threads", "1",
         "-f", "concat",
         "-safe", "0",
         "-i", str(concat_list),
