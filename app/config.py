@@ -60,7 +60,7 @@ class Settings(BaseSettings):
 
     # Model names
     gemini_planner_model: str = Field(default="gemini-3.5-flash-lite")
-    gemini_tts_model: str = Field(default="gemini-3.8-flash-lite-tts")
+    gemini_tts_model: str = Field(default="gemini-2.5-flash-preview-tts")
     gemini_image_model: str = Field(default="gemini-3.1-flash-lite-image")
     groq_asr_model: str = Field(default="whisper-large-v3-turbo")
     groq_vlm_model: str = Field(default="qwen/qwen3.8-27b")

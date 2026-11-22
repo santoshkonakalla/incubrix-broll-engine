@@ -1,0 +1,158 @@
+{
+  "schema_version": "1.0.0",
+  "job_id": "job_2da320b9dd4e",
+  "created_at": "2026-11-22T10:54:26.498476",
+  "completed_at": "2026-11-22T10:57:19.449516Z",
+  "seed": 42,
+  "settings": {
+    "adapter_mode": "live",
+    "aspect_ratios": [
+      "16:9",
+      "9:16",
+      "1:1"
+    ],
+    "style": "bright, energetic commercial product footage",
+    "avoid": [
+      "alcohol",
+      "people's faces"
+    ],
+    "captions": {
+      "burn_in": true,
+      "srt": true
+    },
+    "stock_min_relevance_score": 3.5,
+    "min_scene_duration_seconds": 2.5,
+    "target_fps": 30,
+    "color_normalize_enabled": true
+  },
+  "models_and_providers": [
+    {
+      "role": "asr",
+      "provider": "groq",
+      "model_or_version": "whisper-large-v3-turbo",
+      "calls": 1,
+      "estimated_cost_usd": 0.000183
+    },
+    {
+      "role": "planner",
+      "provider": "gemini",
+      "model_or_version": "gemini-3.5-flash-lite",
+      "calls": 1,
+      "estimated_cost_usd": 0.0005
+    },
+    {
+      "role": "vlm_scorer",
+      "provider": "groq",
+      "model_or_version": "qwen/qwen3.8-27b",
+      "calls": 8,
+      "estimated_cost_usd": 0.001
+    },
+    {
+      "role": "tts",
+      "provider": "gemini",
+      "model_or_version": "gemini-2.5-flash-preview-tts",
+      "calls": 1,
+      "estimated_cost_usd": 0.001097
+    },
+    {
+      "role": "footage_source",
+      "provider": "pixabay",
+      "model_or_version": "pixabay-v1",
+      "calls": 3,
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "timings_seconds": {
+    "ingest_and_tts": 12.246,
+    "asr_alignment": 1.512,
+    "scene_planning": 1.893,
+    "footage_selection_and_vlm": 119.067,
+    "render_and_qa": 38.123,
+    "total": 172.949
+  },
+  "cost_estimate_usd": {
+    "total_job_usd": 0.00278,
+    "per_minute_video_usd": 0.010139
+  },
+  "qa_checks": {
+    "16:9": {
+      "passed": true,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "resolution": "1920x1080",
+      "expected_resolution": "1920x1080",
+      "pix_fmt": "yuv420p",
+      "fps": 30.0,
+      "video_duration": 16.366,
+      "audio_duration": 16.451,
+      "audio_drift_seconds": 0.085,
+      "narration_duration_diff_seconds": 0.085,
+      "black_frame_events": 0,
+      "freeze_frame_events": 0
+    },
+    "9:16": {
+      "passed": true,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "resolution": "1080x1920",
+      "expected_resolution": "1080x1920",
+      "pix_fmt": "yuv420p",
+      "fps": 30.0,
+      "video_duration": 16.433,
+      "audio_duration": 16.451,
+      "audio_drift_seconds": 0.018,
+      "narration_duration_diff_seconds": 0.018,
+      "black_frame_events": 0,
+      "freeze_frame_events": 0
+    },
+    "1:1": {
+      "passed": true,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "resolution": "1080x1080",
+      "expected_resolution": "1080x1080",
+      "pix_fmt": "yuv420p",
+      "fps": 30.0,
+      "video_duration": 16.433,
+      "audio_duration": 16.451,
+      "audio_drift_seconds": 0.018,
+      "narration_duration_diff_seconds": 0.018,
+      "black_frame_events": 0,
+      "freeze_frame_events": 0
+    }
+  },
+  "warnings": [],
+  "rights_and_licences": [
+    {
+      "source": "pixabay",
+      "clip_id": "pixabay_19543",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by Matthias_Groeneveld on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-19543/",
+      "commercial_use_allowed": true,
+      "watermarked": false,
+      "ai_generated": false
+    },
+    {
+      "source": "pixabay",
+      "clip_id": "pixabay_7951",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by MilanWulf on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-7951/",
+      "commercial_use_allowed": true,
+      "watermarked": false,
+      "ai_generated": false
+    },
+    {
+      "source": "pixabay",
+      "clip_id": "pixabay_334631",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by MrWashingt0n on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-334631/",
+      "commercial_use_allowed": true,
+      "watermarked": false,
+      "ai_generated": false
+    }
+  ],
+  "ai_generated_clip_count": 0
+}

@@ -1,0 +1,181 @@
+{
+  "schema_version": "1.0.0",
+  "job_id": "job_b57dbffaa40c",
+  "created_at": "2026-11-22T10:49:59.932225",
+  "completed_at": "2026-11-22T10:54:25.946226Z",
+  "seed": 42,
+  "settings": {
+    "adapter_mode": "live",
+    "aspect_ratios": [
+      "16:9",
+      "9:16"
+    ],
+    "style": "warm, trustworthy, modern lifestyle footage",
+    "avoid": [
+      "alcohol"
+    ],
+    "captions": {
+      "burn_in": true,
+      "srt": true
+    },
+    "stock_min_relevance_score": 3.5,
+    "min_scene_duration_seconds": 2.5,
+    "target_fps": 30,
+    "color_normalize_enabled": true
+  },
+  "models_and_providers": [
+    {
+      "role": "asr",
+      "provider": "groq",
+      "model_or_version": "whisper-large-v3-turbo",
+      "calls": 1,
+      "estimated_cost_usd": 0.000515
+    },
+    {
+      "role": "planner",
+      "provider": "gemini",
+      "model_or_version": "gemini-3.5-flash-lite",
+      "calls": 1,
+      "estimated_cost_usd": 0.0005
+    },
+    {
+      "role": "vlm_scorer",
+      "provider": "groq",
+      "model_or_version": "qwen/qwen3.8-27b",
+      "calls": 19,
+      "estimated_cost_usd": 0.002
+    },
+    {
+      "role": "tts",
+      "provider": "gemini",
+      "model_or_version": "gemini-2.5-flash-preview-tts",
+      "calls": 1,
+      "estimated_cost_usd": 0.003089
+    },
+    {
+      "role": "footage_source",
+      "provider": "pixabay",
+      "model_or_version": "pixabay-v1",
+      "calls": 7,
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "timings_seconds": {
+    "ingest_and_tts": 24.135,
+    "asr_alignment": 7.002,
+    "scene_planning": 9.369,
+    "footage_selection_and_vlm": 197.114,
+    "render_and_qa": 28.305,
+    "total": 265.999
+  },
+  "cost_estimate_usd": {
+    "total_job_usd": 0.006104,
+    "per_minute_video_usd": 0.007905
+  },
+  "qa_checks": {
+    "16:9": {
+      "passed": true,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "resolution": "1920x1080",
+      "expected_resolution": "1920x1080",
+      "pix_fmt": "yuv420p",
+      "fps": 30.0,
+      "video_duration": 46.266,
+      "audio_duration": 46.331,
+      "audio_drift_seconds": 0.065,
+      "narration_duration_diff_seconds": 0.065,
+      "black_frame_events": 0,
+      "freeze_frame_events": 0
+    },
+    "9:16": {
+      "passed": true,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "resolution": "1080x1920",
+      "expected_resolution": "1080x1920",
+      "pix_fmt": "yuv420p",
+      "fps": 30.0,
+      "video_duration": 46.266,
+      "audio_duration": 46.331,
+      "audio_drift_seconds": 0.065,
+      "narration_duration_diff_seconds": 0.065,
+      "black_frame_events": 0,
+      "freeze_frame_events": 0
+    }
+  },
+  "warnings": [],
+  "rights_and_licences": [
+    {
+      "source": "pixabay",
+      "clip_id": "pixabay_80314",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by Kathanhero on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-80314/",
+      "commercial_use_allowed": true,
+      "watermarked": false,
+      "ai_generated": false
+    },
+    {
+      "source": "pixabay",
+      "clip_id": "pixabay_43559",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by PhotoDhaba on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-43559/",
+      "commercial_use_allowed": true,
+      "watermarked": false,
+      "ai_generated": false
+    },
+    {
+      "source": "pixabay",
+      "clip_id": "pixabay_42408",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by SamuelFJohanns on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-42408/",
+      "commercial_use_allowed": true,
+      "watermarked": false,
+      "ai_generated": false
+    },
+    {
+      "source": "pixabay",
+      "clip_id": "pixabay_152798",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by ghasoub on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-152798/",
+      "commercial_use_allowed": true,
+      "watermarked": false,
+      "ai_generated": false
+    },
+    {
+      "source": "pixabay",
+      "clip_id": "pixabay_40797",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by yogobunny on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-40797/",
+      "commercial_use_allowed": true,
+      "watermarked": false,
+      "ai_generated": false
+    },
+    {
+      "source": "pixabay",
+      "clip_id": "pixabay_349089",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by MuhammadAhmad10 on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-349089/",
+      "commercial_use_allowed": true,
+      "watermarked": false,
+      "ai_generated": false
+    },
+    {
+      "source": "pixabay",
+      "clip_id": "pixabay_92717",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by GreenScreenFX on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-92717/",
+      "commercial_use_allowed": true,
+      "watermarked": false,
+      "ai_generated": false
+    }
+  ],
+  "ai_generated_clip_count": 0
+}

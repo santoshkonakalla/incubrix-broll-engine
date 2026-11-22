@@ -1,0 +1,194 @@
+{
+  "total_cases": 10,
+  "succeeded": 10,
+  "failed": 0,
+  "average_relevance_score": 4.15,
+  "total_scenes": 33,
+  "total_narration_seconds": 202.01,
+  "total_render_seconds": 151.6,
+  "total_cost_usd": 0.028311,
+  "cases": [
+    {
+      "name": "01_tutorial_python_en_in",
+      "job_id": "job_f60250fe9ee1",
+      "status": "succeeded",
+      "metrics": {
+        "total_seconds": 74.297,
+        "render_seconds": 12.082,
+        "narration_duration_seconds": 18.936,
+        "scene_count": 3,
+        "average_relevance_score": 4.39,
+        "repeat_clip_count": 0,
+        "estimated_cost_usd": 0.002572
+      },
+      "videos": [
+        "16:9",
+        "9:16"
+      ]
+    },
+    {
+      "name": "02_finance_savings_60s_en_in",
+      "job_id": "job_b57dbffaa40c",
+      "status": "succeeded",
+      "metrics": {
+        "total_seconds": 265.999,
+        "render_seconds": 28.305,
+        "narration_duration_seconds": 46.331,
+        "scene_count": 7,
+        "average_relevance_score": 4.27,
+        "repeat_clip_count": 0,
+        "estimated_cost_usd": 0.006104
+      },
+      "videos": [
+        "16:9",
+        "9:16"
+      ]
+    },
+    {
+      "name": "03_product_promo_en_us",
+      "job_id": "job_2da320b9dd4e",
+      "status": "succeeded",
+      "metrics": {
+        "total_seconds": 172.949,
+        "render_seconds": 38.123,
+        "narration_duration_seconds": 16.451,
+        "scene_count": 3,
+        "average_relevance_score": 4.37,
+        "repeat_clip_count": 0,
+        "estimated_cost_usd": 0.00278
+      },
+      "videos": [
+        "16:9",
+        "9:16",
+        "1:1"
+      ]
+    },
+    {
+      "name": "04_story_craft_trust_en_gb",
+      "job_id": "job_5b3ef6cb3f67",
+      "status": "succeeded",
+      "metrics": {
+        "total_seconds": 75.519,
+        "render_seconds": 8.304,
+        "narration_duration_seconds": 15.696,
+        "scene_count": 3,
+        "average_relevance_score": 4.13,
+        "repeat_clip_count": 0,
+        "estimated_cost_usd": 0.00172
+      },
+      "videos": [
+        "16:9",
+        "9:16"
+      ]
+    },
+    {
+      "name": "05_news_tech_brands_en_in",
+      "job_id": "job_7995975b5370",
+      "status": "succeeded",
+      "metrics": {
+        "total_seconds": 113.631,
+        "render_seconds": 7.994,
+        "narration_duration_seconds": 16.611,
+        "scene_count": 3,
+        "average_relevance_score": 4.06,
+        "repeat_clip_count": 0,
+        "estimated_cost_usd": 0.002992
+      },
+      "videos": [
+        "16:9",
+        "9:16"
+      ]
+    },
+    {
+      "name": "06_sad_news_flood_en_in",
+      "job_id": "job_37d2fdf50ea3",
+      "status": "succeeded",
+      "metrics": {
+        "total_seconds": 68.915,
+        "render_seconds": 10.3,
+        "narration_duration_seconds": 17.808,
+        "scene_count": 2,
+        "average_relevance_score": 3.98,
+        "repeat_clip_count": 0,
+        "estimated_cost_usd": 0.002285
+      },
+      "videos": [
+        "16:9",
+        "9:16"
+      ]
+    },
+    {
+      "name": "07_stats_growth_en_us",
+      "job_id": "job_40a776440677",
+      "status": "succeeded",
+      "metrics": {
+        "total_seconds": 86.103,
+        "render_seconds": 12.787,
+        "narration_duration_seconds": 17.088,
+        "scene_count": 3,
+        "average_relevance_score": 3.41,
+        "repeat_clip_count": 0,
+        "estimated_cost_usd": 0.002629
+      },
+      "videos": [
+        "16:9",
+        "9:16",
+        "1:1"
+      ]
+    },
+    {
+      "name": "08_incubrix_scene_list_en_in",
+      "job_id": "job_e3049a3c13bb",
+      "status": "succeeded",
+      "metrics": {
+        "total_seconds": 94.652,
+        "render_seconds": 10.67,
+        "narration_duration_seconds": 16.176,
+        "scene_count": 3,
+        "average_relevance_score": 4.18,
+        "repeat_clip_count": 0,
+        "estimated_cost_usd": 0.002558
+      },
+      "videos": [
+        "16:9",
+        "9:16"
+      ]
+    },
+    {
+      "name": "09_hindi_smart_saving_hi_in",
+      "job_id": "job_047a02ca4d82",
+      "status": "succeeded",
+      "metrics": {
+        "total_seconds": 83.209,
+        "render_seconds": 10.778,
+        "narration_duration_seconds": 18.888,
+        "scene_count": 3,
+        "average_relevance_score": 4.27,
+        "repeat_clip_count": 0,
+        "estimated_cost_usd": 0.002569
+      },
+      "videos": [
+        "16:9",
+        "9:16"
+      ]
+    },
+    {
+      "name": "10_tamil_clean_energy_ta_in",
+      "job_id": "job_e22db4030765",
+      "status": "succeeded",
+      "metrics": {
+        "total_seconds": 107.795,
+        "render_seconds": 12.254,
+        "narration_duration_seconds": 18.024,
+        "scene_count": 3,
+        "average_relevance_score": 4.46,
+        "repeat_clip_count": 0,
+        "estimated_cost_usd": 0.002102
+      },
+      "videos": [
+        "16:9",
+        "9:16"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "total_scenes_evaluated": 33,
+  "mean_human_score": 4.176,
+  "mean_vlm_score": 4.197,
+  "pct_human_4_or_5": 75.76,
+  "pct_human_3_or_above_coverage": 100.0,
+  "mae": 0.165,
+  "rmse": 0.178,
+  "within_0_5_agreement_pct": 100.0,
+  "within_1_0_agreement_pct": 100.0,
+  "pearson_r": 0.8665,
+  "spearman_rho": 0.8295
+}

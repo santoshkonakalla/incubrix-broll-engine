@@ -1,0 +1,88 @@
+{
+  "job_id": "job_7995975b5370",
+  "language": "en",
+  "total_duration": 16.611,
+  "aspect_ratios": [
+    "16:9",
+    "9:16"
+  ],
+  "scene_count": 3,
+  "repeat_clip_count": 0,
+  "average_relevance_score": 4.06,
+  "scenes": [
+    {
+      "scene_index": 0,
+      "start_time": 0.0,
+      "end_time": 3.96,
+      "duration": 3.96,
+      "narration_text": "Technology leaders, including Elon Musk and executives at Apple,",
+      "visual_hint": null,
+      "search_query": "minimalist modern smartphone on clean wooden desk without logo",
+      "disambiguation_notes": null,
+      "safety_flags": [
+        "NAMED_PERSON_NO_AI_FACE",
+        "BRAND_NO_INVENTED_LOGO"
+      ],
+      "clip_id": "pixabay_306155",
+      "source": "pixabay",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by Mario_Krimer on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-306155/",
+      "ai_generated": false,
+      "selection_rule": "R2_STOCK_THRESHOLD_MET",
+      "selection_reason": "Selected stock clip from 'pixabay' because VLM relevance 3.70 >= threshold 3.50 (0 cost, real-world footage).",
+      "relevance_score": 3.7,
+      "vlm_rationale": "Independent mock VLM verified visual alignment with 'minimalist modern smartphone on clean wooden desk without lo' (overlap=0.00).",
+      "crop_focus_x": 0.511,
+      "color_normalized": true
+    },
+    {
+      "scene_index": 1,
+      "start_time": 3.96,
+      "end_time": 7.33,
+      "duration": 3.37,
+      "narration_text": "discussed next-generation battery efficiency this week.",
+      "visual_hint": null,
+      "search_query": "modern lifestyle workspace sunlit",
+      "disambiguation_notes": null,
+      "safety_flags": [],
+      "clip_id": "pixabay_1049",
+      "source": "pixabay",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by Coverr-Free-Footage on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-1049/",
+      "ai_generated": false,
+      "selection_rule": "R2_STOCK_THRESHOLD_MET",
+      "selection_reason": "Selected stock clip from 'pixabay' because VLM relevance 3.98 >= threshold 3.50 (0 cost, real-world footage).",
+      "relevance_score": 3.98,
+      "vlm_rationale": "Independent mock VLM verified visual alignment with 'modern lifestyle workspace sunlit' (overlap=0.25).",
+      "crop_focus_x": 0.543,
+      "color_normalized": true
+    },
+    {
+      "scene_index": 2,
+      "start_time": 7.33,
+      "end_time": 16.611,
+      "duration": 9.281,
+      "narration_text": "Industry analysts expect global electric vehicle adoption to grow 35% by 2027 as charging networks expand across major highways.",
+      "visual_hint": null,
+      "search_query": "modern lifestyle workspace sunlit",
+      "disambiguation_notes": null,
+      "safety_flags": [
+        "STATISTIC_DETECTED"
+      ],
+      "clip_id": "statcard_82d1130a41fd",
+      "source": "statcard",
+      "licence": "MIT / Engine-Generated Original Graphic (Commercial Use Allowed)",
+      "attribution": "Generated programmatically by IncuBrix B-roll Engine",
+      "source_url": "https://incubrix.local/programmatic-motion-card",
+      "ai_generated": true,
+      "selection_rule": "R4_STAT_GRAPHIC",
+      "selection_reason": "Quantitative statistic ('35%') detected with stock_score=3.98 < 4.10; generated animated data card (VLM=4.50).",
+      "relevance_score": 4.5,
+      "vlm_rationale": "The visual is a data visualization that directly illustrates the specific statistics and growth trends mentioned in the narration.",
+      "crop_focus_x": 0.563,
+      "color_normalized": true
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "job_id": "job_b57dbffaa40c",
+  "status": "succeeded",
+  "progress": 100,
+  "stage": "completed",
+  "created_at": "2026-11-22T10:49:59.932225",
+  "updated_at": "2026-11-22T10:54:25.952757",
+  "result": {
+    "videos": {
+      "16:9": "http://127.0.0.1:8000/api/v1/files/jobs/job_b57dbffaa40c/video_16x9.mp4",
+      "9:16": "http://127.0.0.1:8000/api/v1/files/jobs/job_b57dbffaa40c/video_9x16.mp4"
+    },
+    "captions_srt": "http://127.0.0.1:8000/api/v1/files/jobs/job_b57dbffaa40c/captions.srt",
+    "timeline_json": "http://127.0.0.1:8000/api/v1/files/jobs/job_b57dbffaa40c/timeline.json",
+    "manifest_json": "http://127.0.0.1:8000/api/v1/files/jobs/job_b57dbffaa40c/manifest.json"
+  },
+  "warnings": [],
+  "error": null,
+  "metrics": {
+    "total_seconds": 265.999,
+    "render_seconds": 28.305,
+    "narration_duration_seconds": 46.331,
+    "scene_count": 7,
+    "average_relevance_score": 4.27,
+    "repeat_clip_count": 0,
+    "estimated_cost_usd": 0.006104
+  }
+}

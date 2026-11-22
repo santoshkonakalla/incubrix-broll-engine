@@ -1,0 +1,52 @@
+{
+  "api_url": "http://127.0.0.1:8000",
+  "cold_60s": {
+    "job_id": "job_2e708fd00825",
+    "status": "succeeded",
+    "wall_seconds": 241.231,
+    "metrics": {
+      "total_seconds": 240.998,
+      "render_seconds": 31.231,
+      "narration_duration_seconds": 60.696,
+      "scene_count": 8,
+      "average_relevance_score": 4.15,
+      "repeat_clip_count": 0,
+      "estimated_cost_usd": 0.00522
+    }
+  },
+  "warm_60s": {
+    "job_id": "job_636bbd1eea75",
+    "status": "succeeded",
+    "wall_seconds": 236.005,
+    "metrics": {
+      "total_seconds": 235.55,
+      "render_seconds": 32.231,
+      "narration_duration_seconds": 60.696,
+      "scene_count": 8,
+      "average_relevance_score": 4.09,
+      "repeat_clip_count": 0,
+      "estimated_cost_usd": 0.00522
+    }
+  },
+  "swap_a_clip": {
+    "job_id": "job_636bbd1eea75",
+    "scene_index": 0,
+    "new_clip_id": "pixabay_4952",
+    "new_source": "pixabay",
+    "relevance_score": 4.14,
+    "swap_duration_seconds": 11.288,
+    "original_full_render_seconds": 32.231,
+    "re_rendered_scenes": 1,
+    "cached_scenes_reused": 7
+  },
+  "concurrency": {
+    "parallel_jobs": 3,
+    "all_succeeded": true,
+    "total_wall_seconds": 75.327,
+    "per_job_wall_seconds": [
+      26.323,
+      75.325,
+      51.612
+    ]
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "job_id": "job_40a776440677",
+  "language": "en",
+  "total_duration": 17.088,
+  "aspect_ratios": [
+    "16:9",
+    "9:16",
+    "1:1"
+  ],
+  "scene_count": 3,
+  "repeat_clip_count": 0,
+  "average_relevance_score": 3.41,
+  "scenes": [
+    {
+      "scene_index": 0,
+      "start_time": 0.0,
+      "end_time": 5.1,
+      "duration": 5.1,
+      "narration_text": "Remote software adoption reshaped enterprise productivity across three continents.",
+      "visual_hint": null,
+      "search_query": "modern lifestyle workspace sunlit",
+      "disambiguation_notes": null,
+      "safety_flags": [
+        "SENSITIVE_RESPECTFUL_TONE"
+      ],
+      "clip_id": "pixabay_1049",
+      "source": "pixabay",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by Coverr-Free-Footage on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-1049/",
+      "ai_generated": false,
+      "selection_rule": "R2_STOCK_THRESHOLD_MET",
+      "selection_reason": "Selected stock clip from 'pixabay' because VLM relevance 3.98 >= threshold 3.50 (0 cost, real-world footage).",
+      "relevance_score": 3.98,
+      "vlm_rationale": "Independent mock VLM verified visual alignment with 'modern lifestyle workspace sunlit' (overlap=0.25).",
+      "crop_focus_x": 0.543,
+      "color_normalized": true
+    },
+    {
+      "scene_index": 1,
+      "start_time": 5.1,
+      "end_time": 11.31,
+      "duration": 6.21,
+      "narration_text": "Overall sales grew 40% in 2025 while onboarding time dropped by 28%.",
+      "visual_hint": null,
+      "search_query": "modern lifestyle workspace sunlit",
+      "disambiguation_notes": null,
+      "safety_flags": [
+        "STATISTIC_DETECTED"
+      ],
+      "clip_id": "pixabay_31106",
+      "source": "pixabay",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by Dex_santana on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-31106/",
+      "ai_generated": false,
+      "selection_rule": "R2_STOCK_THRESHOLD_MET",
+      "selection_reason": "Selected stock clip from 'pixabay' because VLM relevance 4.25 >= threshold 3.50 (0 cost, real-world footage).",
+      "relevance_score": 4.25,
+      "vlm_rationale": "Independent mock VLM verified visual alignment with 'modern lifestyle workspace sunlit' (overlap=0.50).",
+      "crop_focus_x": 0.601,
+      "color_normalized": true
+    },
+    {
+      "scene_index": 2,
+      "start_time": 11.31,
+      "end_time": 17.088,
+      "duration": 5.778,
+      "narration_text": "Teams investing in clear documentation reported 3x faster product launches.",
+      "visual_hint": null,
+      "search_query": "modern lifestyle workspace sunlit",
+      "disambiguation_notes": null,
+      "safety_flags": [
+        "STATISTIC_DETECTED"
+      ],
+      "clip_id": "statcard_b193b47004b0",
+      "source": "statcard",
+      "licence": "MIT / Engine-Generated Original Graphic (Commercial Use Allowed)",
+      "attribution": "Generated programmatically by IncuBrix B-roll Engine",
+      "source_url": "https://incubrix.local/programmatic-motion-card",
+      "ai_generated": true,
+      "selection_rule": "R4_STAT_GRAPHIC",
+      "selection_reason": "Quantitative statistic ('3x') detected with stock_score=3.98 < 4.10; generated animated data card (VLM=2.00).",
+      "relevance_score": 2.0,
+      "vlm_rationale": "The video displays a text graphic and bar chart that directly matches the narration content, but it completely fails to depict the intended visual of a modern lifestyle workspace.",
+      "crop_focus_x": 0.562,
+      "color_normalized": true
+    }
+  ]
+}

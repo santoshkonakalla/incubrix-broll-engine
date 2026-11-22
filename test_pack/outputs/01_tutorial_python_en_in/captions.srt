@@ -1,0 +1,27 @@
+1
+00:00:00,280 --> 00:00:02,740
+Learning Python transforms how you solve
+
+2
+00:00:02,740 --> 00:00:04,720
+everyday engineering problems.
+
+3
+00:00:05,660 --> 00:00:07,680
+Instead of clicking your computer mouse
+
+4
+00:00:07,680 --> 00:00:10,080
+through hundreds of spreadsheets, a clean
+
+5
+00:00:10,080 --> 00:00:12,000
+script finishes the work in seconds.
+
+6
+00:00:13,200 --> 00:00:15,780
+Modern cloud computing servers then run that
+
+7
+00:00:15,780 --> 00:00:18,520
+pipeline automatically while you sleep.

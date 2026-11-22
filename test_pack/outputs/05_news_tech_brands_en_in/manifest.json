@@ -1,0 +1,149 @@
+{
+  "schema_version": "1.0.0",
+  "job_id": "job_7995975b5370",
+  "created_at": "2026-11-22T11:02:20.162969",
+  "completed_at": "2026-11-22T11:04:13.815053Z",
+  "seed": 42,
+  "settings": {
+    "adapter_mode": "live",
+    "aspect_ratios": [
+      "16:9",
+      "9:16"
+    ],
+    "style": "clean editorial news broadcast footage",
+    "avoid": [],
+    "captions": {
+      "burn_in": true,
+      "srt": true
+    },
+    "stock_min_relevance_score": 3.5,
+    "min_scene_duration_seconds": 2.5,
+    "target_fps": 30,
+    "color_normalize_enabled": true
+  },
+  "models_and_providers": [
+    {
+      "role": "asr",
+      "provider": "groq",
+      "model_or_version": "whisper-large-v3-turbo",
+      "calls": 1,
+      "estimated_cost_usd": 0.000185
+    },
+    {
+      "role": "planner",
+      "provider": "gemini",
+      "model_or_version": "gemini-3.5-flash-lite",
+      "calls": 1,
+      "estimated_cost_usd": 0.0005
+    },
+    {
+      "role": "vlm_scorer",
+      "provider": "groq",
+      "model_or_version": "qwen/qwen3.8-27b",
+      "calls": 12,
+      "estimated_cost_usd": 0.0012
+    },
+    {
+      "role": "tts",
+      "provider": "gemini",
+      "model_or_version": "gemini-2.5-flash-preview-tts",
+      "calls": 1,
+      "estimated_cost_usd": 0.001107
+    },
+    {
+      "role": "footage_source",
+      "provider": "pixabay",
+      "model_or_version": "pixabay-v1",
+      "calls": 4,
+      "estimated_cost_usd": 0.0
+    },
+    {
+      "role": "footage_source",
+      "provider": "statcard",
+      "model_or_version": "statcard-v1",
+      "calls": 1,
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "timings_seconds": {
+    "ingest_and_tts": 11.737,
+    "asr_alignment": 1.323,
+    "scene_planning": 1.596,
+    "footage_selection_and_vlm": 90.898,
+    "render_and_qa": 7.994,
+    "total": 113.631
+  },
+  "cost_estimate_usd": {
+    "total_job_usd": 0.002992,
+    "per_minute_video_usd": 0.010807
+  },
+  "qa_checks": {
+    "16:9": {
+      "passed": true,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "resolution": "1920x1080",
+      "expected_resolution": "1920x1080",
+      "pix_fmt": "yuv420p",
+      "fps": 30.0,
+      "video_duration": 16.599,
+      "audio_duration": 16.597,
+      "audio_drift_seconds": 0.002,
+      "narration_duration_diff_seconds": 0.012,
+      "black_frame_events": 0,
+      "freeze_frame_events": 0
+    },
+    "9:16": {
+      "passed": true,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "resolution": "1080x1920",
+      "expected_resolution": "1080x1920",
+      "pix_fmt": "yuv420p",
+      "fps": 30.0,
+      "video_duration": 16.599,
+      "audio_duration": 16.597,
+      "audio_drift_seconds": 0.002,
+      "narration_duration_diff_seconds": 0.012,
+      "black_frame_events": 0,
+      "freeze_frame_events": 0
+    }
+  },
+  "warnings": [
+    "Real person mentioned (Elon Musk): blocked AI face generation and used contextual editorial B-roll.",
+    "Brand mentioned (Apple): blocked invented brand logos and selected generic category footage."
+  ],
+  "rights_and_licences": [
+    {
+      "source": "pixabay",
+      "clip_id": "pixabay_306155",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by Mario_Krimer on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-306155/",
+      "commercial_use_allowed": true,
+      "watermarked": false,
+      "ai_generated": false
+    },
+    {
+      "source": "pixabay",
+      "clip_id": "pixabay_1049",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by Coverr-Free-Footage on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-1049/",
+      "commercial_use_allowed": true,
+      "watermarked": false,
+      "ai_generated": false
+    },
+    {
+      "source": "statcard",
+      "clip_id": "statcard_82d1130a41fd",
+      "licence": "MIT / Engine-Generated Original Graphic (Commercial Use Allowed)",
+      "attribution": "Generated programmatically by IncuBrix B-roll Engine",
+      "source_url": "https://incubrix.local/programmatic-motion-card",
+      "commercial_use_allowed": true,
+      "watermarked": false,
+      "ai_generated": true
+    }
+  ],
+  "ai_generated_clip_count": 1
+}

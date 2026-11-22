@@ -1,0 +1,89 @@
+{
+  "job_id": "job_f60250fe9ee1",
+  "language": "en",
+  "total_duration": 18.936,
+  "aspect_ratios": [
+    "16:9",
+    "9:16"
+  ],
+  "scene_count": 3,
+  "repeat_clip_count": 0,
+  "average_relevance_score": 4.39,
+  "scenes": [
+    {
+      "scene_index": 0,
+      "start_time": 0.0,
+      "end_time": 5.19,
+      "duration": 5.19,
+      "narration_text": "Learning Python transforms how you solve everyday engineering problems.",
+      "visual_hint": null,
+      "search_query": "software developer writing code on laptop dark IDE screen",
+      "disambiguation_notes": "'python' -> software developer writing code on laptop dark IDE screen",
+      "safety_flags": [
+        "HOMONYM_RESOLVED_PYTHON"
+      ],
+      "clip_id": "pixabay_41263",
+      "source": "pixabay",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by viarami on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-41263/",
+      "ai_generated": false,
+      "selection_rule": "R2_STOCK_THRESHOLD_MET",
+      "selection_reason": "Selected stock clip from 'pixabay' because VLM relevance 4.50 >= threshold 3.50 (0 cost, real-world footage).",
+      "relevance_score": 4.5,
+      "vlm_rationale": "The footage shows a close-up of a laptop screen displaying code in a dark IDE, which aligns well with the intended visual of a developer writing code.",
+      "crop_focus_x": 0.577,
+      "color_normalized": true
+    },
+    {
+      "scene_index": 1,
+      "start_time": 5.19,
+      "end_time": 12.6,
+      "duration": 7.41,
+      "narration_text": "Instead of clicking your computer mouse through hundreds of spreadsheets, a clean script finishes the work in seconds.",
+      "visual_hint": null,
+      "search_query": "hand clicking ergonomic computer mouse on modern desk",
+      "disambiguation_notes": "'mouse' -> hand clicking ergonomic computer mouse on modern desk",
+      "safety_flags": [
+        "HOMONYM_RESOLVED_MOUSE"
+      ],
+      "clip_id": "pixabay_1196",
+      "source": "pixabay",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by Vimeo-Free-Videos on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-1196/",
+      "ai_generated": false,
+      "selection_rule": "R2_STOCK_THRESHOLD_MET",
+      "selection_reason": "Selected stock clip from 'pixabay' because VLM relevance 4.17 >= threshold 3.50 (0 cost, real-world footage).",
+      "relevance_score": 4.17,
+      "vlm_rationale": "Independent mock VLM verified visual alignment with 'hand clicking ergonomic computer mouse on modern desk' (overlap=0.43).",
+      "crop_focus_x": 0.486,
+      "color_normalized": true
+    },
+    {
+      "scene_index": 2,
+      "start_time": 12.6,
+      "end_time": 18.936,
+      "duration": 6.336,
+      "narration_text": "Modern cloud computing servers then run that pipeline automatically while you sleep.",
+      "visual_hint": null,
+      "search_query": "modern server room data center glowing racks technology",
+      "disambiguation_notes": "'cloud' -> modern server room data center glowing racks technology",
+      "safety_flags": [
+        "HOMONYM_RESOLVED_CLOUD"
+      ],
+      "clip_id": "pixabay_14900",
+      "source": "pixabay",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by cipnt on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-14900/",
+      "ai_generated": false,
+      "selection_rule": "R2_STOCK_THRESHOLD_MET",
+      "selection_reason": "Selected stock clip from 'pixabay' because VLM relevance 4.50 >= threshold 3.50 (0 cost, real-world footage).",
+      "relevance_score": 4.5,
+      "vlm_rationale": "The image clearly shows a modern server rack with glowing network lights and cables, which is a strong visual match for cloud computing servers and data centers.",
+      "crop_focus_x": 0.528,
+      "color_normalized": true
+    }
+  ]
+}

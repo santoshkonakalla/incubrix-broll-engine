@@ -1,0 +1,31 @@
+{
+  "job_id": "job_7995975b5370",
+  "status": "succeeded",
+  "progress": 100,
+  "stage": "completed",
+  "created_at": "2026-11-22T11:02:20.162969",
+  "updated_at": "2026-11-22T11:04:13.821959",
+  "result": {
+    "videos": {
+      "16:9": "http://127.0.0.1:8000/api/v1/files/jobs/job_7995975b5370/video_16x9.mp4",
+      "9:16": "http://127.0.0.1:8000/api/v1/files/jobs/job_7995975b5370/video_9x16.mp4"
+    },
+    "captions_srt": "http://127.0.0.1:8000/api/v1/files/jobs/job_7995975b5370/captions.srt",
+    "timeline_json": "http://127.0.0.1:8000/api/v1/files/jobs/job_7995975b5370/timeline.json",
+    "manifest_json": "http://127.0.0.1:8000/api/v1/files/jobs/job_7995975b5370/manifest.json"
+  },
+  "warnings": [
+    "Real person mentioned (Elon Musk): blocked AI face generation and used contextual editorial B-roll.",
+    "Brand mentioned (Apple): blocked invented brand logos and selected generic category footage."
+  ],
+  "error": null,
+  "metrics": {
+    "total_seconds": 113.631,
+    "render_seconds": 7.994,
+    "narration_duration_seconds": 16.611,
+    "scene_count": 3,
+    "average_relevance_score": 4.06,
+    "repeat_clip_count": 0,
+    "estimated_cost_usd": 0.002992
+  }
+}

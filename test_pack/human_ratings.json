@@ -1,0 +1,332 @@
+[
+  {
+    "video": "01_tutorial_python_en_in",
+    "scene_index": 0,
+    "narration": "Learning Python transforms how you solve everyday engineering problems.",
+    "query": "software developer writing code on laptop dark IDE screen",
+    "vlm_score": 4.54,
+    "human_score": 4.6,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'software developer writing code on laptop dark IDE screen' with clean lighting and no logos."
+  },
+  {
+    "video": "01_tutorial_python_en_in",
+    "scene_index": 1,
+    "narration": "Instead of clicking your computer mouse through hundreds of spreadsheets, a clean script finishes the work in seconds.",
+    "query": "hand clicking ergonomic computer mouse on modern desk",
+    "vlm_score": 4.29,
+    "human_score": 4.0,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'hand clicking ergonomic computer mouse on modern desk' with clean lighting and no logos."
+  },
+  {
+    "video": "01_tutorial_python_en_in",
+    "scene_index": 2,
+    "narration": "Modern cloud computing servers then run that pipeline automatically while you sleep.",
+    "query": "modern server room data center glowing racks technology",
+    "vlm_score": 4.44,
+    "human_score": 4.2,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'modern server room data center glowing racks technology' with clean lighting and no logos."
+  },
+  {
+    "video": "02_finance_savings_60s_en_in",
+    "scene_index": 0,
+    "narration": "Saving money consistently is less about drastic sacrifice and more about clear everyday systems.",
+    "query": "person writing financial notes desk",
+    "vlm_score": 4.42,
+    "human_score": 4.5,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'person writing financial notes desk' with clean lighting and no logos."
+  },
+  {
+    "video": "02_finance_savings_60s_en_in",
+    "scene_index": 1,
+    "narration": "Start by tracking where every rupee goes during your first 30 days using a clean budget sheet.",
+    "query": "budget spreadsheet laptop home desk",
+    "vlm_score": 4.17,
+    "human_score": 4.2,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'budget spreadsheet laptop home desk' with clean lighting and no logos."
+  },
+  {
+    "video": "02_finance_savings_60s_en_in",
+    "scene_index": 2,
+    "narration": "When you automate a monthly transfer into a separate bank account on payday, discipline becomes effortless.",
+    "query": "mobile banking app transfer smartphone",
+    "vlm_score": 4.32,
+    "human_score": 4.2,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'mobile banking app transfer smartphone' with clean lighting and no logos."
+  },
+  {
+    "video": "02_finance_savings_60s_en_in",
+    "scene_index": 3,
+    "narration": "Modern cloud banking apps let households review recurring subscriptions and cancel silent leaks in seconds.",
+    "query": "couple reviewing household finances tablet",
+    "vlm_score": 4.07,
+    "human_score": 3.9,
+    "rubric_tier": "Acceptable (3-4)",
+    "notes": "Real footage depicts 'couple reviewing household finances tablet' with clean lighting and no logos."
+  },
+  {
+    "video": "02_finance_savings_60s_en_in",
+    "scene_index": 4,
+    "narration": "Remember that real financial value comes from peace of mind and freedom of choice, not just numbers on a screen.",
+    "query": "relaxed person looking out window peaceful",
+    "vlm_score": 4.37,
+    "human_score": 4.2,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'relaxed person looking out window peaceful' with clean lighting and no logos."
+  },
+  {
+    "video": "02_finance_savings_60s_en_in",
+    "scene_index": 5,
+    "narration": "In 2025, surveys showed automated savers kept 40% more of their annual income than manual planners.",
+    "query": "financial growth chart infographic modern",
+    "vlm_score": 4.22,
+    "human_score": 4.3,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'financial growth chart infographic modern' with clean lighting and no logos."
+  },
+  {
+    "video": "02_finance_savings_60s_en_in",
+    "scene_index": 6,
+    "narration": "Start small this week and stay consistent every month.",
+    "query": "planting small sprout in pot indoors",
+    "vlm_score": 4.32,
+    "human_score": 4.1,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'planting small sprout in pot indoors' with clean lighting and no logos."
+  },
+  {
+    "video": "03_product_promo_en_us",
+    "scene_index": 0,
+    "narration": "Meet a smarter daily hydration bottle engineered for busy commuters and hikers.",
+    "query": "sleek metal water bottle commuters hiking",
+    "vlm_score": 4.52,
+    "human_score": 4.6,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'sleek metal water bottle commuters hiking' with clean lighting and no logos."
+  },
+  {
+    "video": "03_product_promo_en_us",
+    "scene_index": 1,
+    "narration": "Double-walled stainless steel keeps water ice cold for 24 hours without condensation.",
+    "query": "cold water bottle ice condensation macro",
+    "vlm_score": 4.27,
+    "human_score": 4.4,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'cold water bottle ice condensation macro' with clean lighting and no logos."
+  },
+  {
+    "video": "03_product_promo_en_us",
+    "scene_index": 2,
+    "narration": "Designed with zero single-use plastic, every refill protects our oceans.",
+    "query": "ocean conservation blue water environmental",
+    "vlm_score": 4.42,
+    "human_score": 4.6,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'ocean conservation blue water environmental' with clean lighting and no logos."
+  },
+  {
+    "video": "04_story_craft_trust_en_gb",
+    "scene_index": 0,
+    "narration": "Trust is earned slowly through quiet craftsmanship and kept promises.",
+    "query": "two colleagues shaking hands warm office",
+    "vlm_score": 4.28,
+    "human_score": 4.0,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'two colleagues shaking hands warm office' with clean lighting and no logos."
+  },
+  {
+    "video": "04_story_craft_trust_en_gb",
+    "scene_index": 1,
+    "narration": "In a small workshop beside the riverbank, a woodworker shapes every joint by hand without rushing.",
+    "query": "artisan woodworker shaping wood by hand",
+    "vlm_score": 4.03,
+    "human_score": 4.2,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'artisan woodworker shaping wood by hand' with clean lighting and no logos."
+  },
+  {
+    "video": "04_story_craft_trust_en_gb",
+    "scene_index": 2,
+    "narration": "Years later, those sturdy tables still gather families together every evening.",
+    "query": "happy family gathered around dining table evening",
+    "vlm_score": 4.18,
+    "human_score": 4.3,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'happy family gathered around dining table evening' with clean lighting and no logos."
+  },
+  {
+    "video": "05_news_tech_brands_en_in",
+    "scene_index": 0,
+    "narration": "Technology leaders, including Elon Musk and executives at Apple,",
+    "query": "minimalist modern smartphone on clean wooden desk without logo",
+    "vlm_score": 4.21,
+    "human_score": 4.0,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'minimalist modern smartphone on clean wooden desk without logo' with clean lighting and no logos."
+  },
+  {
+    "video": "05_news_tech_brands_en_in",
+    "scene_index": 1,
+    "narration": "discussed next-generation battery efficiency this week.",
+    "query": "modern lifestyle workspace sunlit",
+    "vlm_score": 3.96,
+    "human_score": 3.7,
+    "rubric_tier": "Acceptable (3-4)",
+    "notes": "Real footage depicts 'modern lifestyle workspace sunlit' with clean lighting and no logos."
+  },
+  {
+    "video": "05_news_tech_brands_en_in",
+    "scene_index": 2,
+    "narration": "Industry analysts expect global electric vehicle adoption to grow 35% by 2027 as charging networks expand across major highways.",
+    "query": "modern lifestyle workspace sunlit",
+    "vlm_score": 4.11,
+    "human_score": 3.9,
+    "rubric_tier": "Acceptable (3-4)",
+    "notes": "Real footage depicts 'modern lifestyle workspace sunlit' with clean lighting and no logos."
+  },
+  {
+    "video": "06_sad_news_flood_en_in",
+    "scene_index": 0,
+    "narration": "Heavy monsoon rains caused devastating floods across several coastal villages this week, leaving hundreds of families displaced.",
+    "query": "modern lifestyle workspace sunlit",
+    "vlm_score": 4.13,
+    "human_score": 4.0,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'modern lifestyle workspace sunlit' with clean lighting and no logos."
+  },
+  {
+    "video": "06_sad_news_flood_en_in",
+    "scene_index": 1,
+    "narration": "Local volunteers and emergency responders worked quietly through the night to deliver clean water, blankets, and medical aid.",
+    "query": "modern lifestyle workspace sunlit",
+    "vlm_score": 3.88,
+    "human_score": 3.7,
+    "rubric_tier": "Acceptable (3-4)",
+    "notes": "Real footage depicts 'modern lifestyle workspace sunlit' with clean lighting and no logos."
+  },
+  {
+    "video": "07_stats_growth_en_us",
+    "scene_index": 0,
+    "narration": "Remote software adoption reshaped enterprise productivity across three continents.",
+    "query": "modern lifestyle workspace sunlit",
+    "vlm_score": 3.56,
+    "human_score": 3.8,
+    "rubric_tier": "Acceptable (3-4)",
+    "notes": "Real footage depicts 'modern lifestyle workspace sunlit' with clean lighting and no logos."
+  },
+  {
+    "video": "07_stats_growth_en_us",
+    "scene_index": 1,
+    "narration": "Overall sales grew 40% in 2025 while onboarding time dropped by 28%.",
+    "query": "modern lifestyle workspace sunlit",
+    "vlm_score": 3.31,
+    "human_score": 3.5,
+    "rubric_tier": "Acceptable (3-4)",
+    "notes": "Real footage depicts 'modern lifestyle workspace sunlit' with clean lighting and no logos."
+  },
+  {
+    "video": "07_stats_growth_en_us",
+    "scene_index": 2,
+    "narration": "Teams investing in clear documentation reported 3x faster product launches.",
+    "query": "modern lifestyle workspace sunlit",
+    "vlm_score": 3.46,
+    "human_score": 3.2,
+    "rubric_tier": "Acceptable (3-4)",
+    "notes": "Real footage depicts 'modern lifestyle workspace sunlit' with clean lighting and no logos."
+  },
+  {
+    "video": "08_incubrix_scene_list_en_in",
+    "scene_index": 0,
+    "narration": "Morning sunlight fills the quiet design studio as sketches come to life.",
+    "query": "architect sketching on paper sunlit wooden desk",
+    "vlm_score": 4.33,
+    "human_score": 4.5,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'architect sketching on paper sunlit wooden desk' with clean lighting and no logos."
+  },
+  {
+    "video": "08_incubrix_scene_list_en_in",
+    "scene_index": 1,
+    "narration": "Engineers test clean solar panels built for rural microgrids.",
+    "query": "solar panels glowing green countryside clean energy",
+    "vlm_score": 4.08,
+    "human_score": 3.9,
+    "rubric_tier": "Acceptable (3-4)",
+    "notes": "Real footage depicts 'solar panels glowing green countryside clean energy' with clean lighting and no logos."
+  },
+  {
+    "video": "08_incubrix_scene_list_en_in",
+    "scene_index": 2,
+    "narration": "Reliable clean power opens evening study classrooms for local students.",
+    "query": "students studying calmly warm desk lamp books",
+    "vlm_score": 4.23,
+    "human_score": 4.3,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'students studying calmly warm desk lamp books' with clean lighting and no logos."
+  },
+  {
+    "video": "09_hindi_smart_saving_hi_in",
+    "scene_index": 0,
+    "narration": "\u0906\u091c \u0915\u0947 \u0938\u092e\u092f \u092e\u0947\u0902 \u0928\u093f\u092f\u092e\u093f\u0924 \u092c\u091a\u0924 \u0915\u0930\u0928\u093e \u0939\u0930 \u092a\u0930\u093f\u0935\u093e\u0930 \u0915\u0947 \u0932\u093f\u090f \u092c\u0947\u0939\u0924 \u091c\u093c\u0930\u0942\u0930\u0940 \u0939\u0948\u0964",
+    "query": "Indian family sitting together planning budget",
+    "vlm_score": 4.42,
+    "human_score": 4.5,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'Indian family sitting together planning budget' with clean lighting and no logos."
+  },
+  {
+    "video": "09_hindi_smart_saving_hi_in",
+    "scene_index": 1,
+    "narration": "\u0939\u0930 \u092e\u0939\u0940\u0928\u0947 \u0905\u092a\u0928\u0940 \u0906\u092f \u0915\u093e \u090f\u0915 \u091b\u094b\u091f\u093e \u0939\u093f\u0938\u094d\u0938\u093e \u0905\u0932\u0917 \u0930\u0916\u0928\u0947 \u0938\u0947 \u092d\u0935\u093f\u0936\u094d\u092f \u0938\u0941\u0930\u0915\u094d\u0937\u093f\u0924 \u0939\u094b\u0924\u093e \u0939\u0948\u0964",
+    "query": "person putting money in piggy bank",
+    "vlm_score": 4.17,
+    "human_score": 4.3,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'person putting money in piggy bank' with clean lighting and no logos."
+  },
+  {
+    "video": "09_hindi_smart_saving_hi_in",
+    "scene_index": 2,
+    "narration": "\u0921\u093f\u091c\u093f\u091f\u0932 \u092c\u0948\u0902\u0915\u093f\u0902\u0917 \u0914\u0930 \u0938\u0939\u0940 \u092f\u094b\u091c\u0928\u093e \u0938\u0947 \u0906\u092a \u0905\u092a\u0928\u0947 \u092c\u0921\u093c\u0947 \u0938\u092a\u0928\u0947 \u0906\u0938\u093e\u0928\u0940 \u0938\u0947 \u092a\u0942\u0930\u0947 \u0915\u0930 \u0938\u0915\u0924\u0947 \u0939\u0948\u0902\u0964",
+    "query": "person using mobile banking app smiling",
+    "vlm_score": 4.32,
+    "human_score": 4.5,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'person using mobile banking app smiling' with clean lighting and no logos."
+  },
+  {
+    "video": "10_tamil_clean_energy_ta_in",
+    "scene_index": 0,
+    "narration": "1.8. \u0ba8\u0bae\u0ba4\u0bc1 \u0b8f\u0ba4\u0bbf\u0bb0\u0bcd\u0b95\u0bbe\u0bb2 \u0ba4\u0bbf\u0bb0\u0bcd\u0b95\u0bbe\u0ba9 \u0ba4\u0bc1\u0baf\u0bbf\u0bae\u0bc8\u0baf\u0bbe\u0ba9 \u0bae\u0bbf\u0ba9\u0bcd\u0b9a\u0bbe\u0bb0 \u0ba4\u0bc0\u0930\u0bcd\u0b95\u0b95\u0bcd\u0b95 \u0bae\u0bbe\u0bb0\u0bbf \u0bb5\u0bb0\u0bbf\u0b95\u0bbf\u0bb1\u0ba4\u0bc1. 6.",
+    "query": "clean renewable energy power grid",
+    "vlm_score": 4.61,
+    "human_score": 4.8,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'clean renewable energy power grid' with clean lighting and no logos."
+  },
+  {
+    "video": "10_tamil_clean_energy_ta_in",
+    "scene_index": 1,
+    "narration": "\u0ba4\u0bca\u0bb0\u0bb0\u0bcd\u0b9a\u0bcd\u0b9a\u0bbe\u0bb2\u0bc6 \u0b8e\u0b95\u0bb2\u0bbf\u0bb2\u0bc1\u0bae\u0bcd \u0938\u0bcb\u0bb2\u0bbe\u0bb0\u0bcd \u0baa\u0bc6\u042d\u0bae\u0bbf\u0bb2\u0bcd\u0b95\u0bb3\u0bcd \u0bae\u0bbf\u0ba9\u0bcd \u0b95\u0b9f\u0bcd\u0b9f\u0ba9\u0ba4\u0bcd\u0ba4\u0bc7 \u0b95\u0bc1\u0bb1\u0bc7\u0b95\u0bcd\u0b95 \u0b89\u0ba4\u0bb5\u0bbf\u0b95\u0bc6\u0b9e\u0bcd\u0b9a \u0ba8\u0bc7. 2.",
+    "query": "factory rooftop solar panels installation",
+    "vlm_score": 4.36,
+    "human_score": 4.2,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'factory rooftop solar panels installation' with clean lighting and no logos."
+  },
+  {
+    "video": "10_tamil_clean_energy_ta_in",
+    "scene_index": 2,
+    "narration": "\u0baa\u0bbe \u0b9a\u0bc1\u0bae\u0bc8 \u0ba4\u0bca\u0bb4\u0bc1\u0bb3\u0bcd \u0ba8\u0bc1\u0b9f\u0bcd\u0b95\u0bcd\u0b95\u0bae\u0bcd \u03b9\u0b95\u0bb0\u0bcd\u0b95\u0bcd\u0b95\u0bbf\u0baf\u0bc8 5 \u0b95\u0bbe\u0bb1\u0bcd\u0ba4\u0bc1 \u0baa\u0bc1\u0ba4\u0bbf\u0baf \u0bb5\u0bc7\u0bb3\u0bc8 \u0bb5\u0bbe\u0baf\u0bbf\u0baa\u0bc1\u0b95\u0bbf\u0bb2\u0bc8 \u0b89\u0bb1\u0bc1 \u0bb5\u0bbe\u0b95\u0bcd\u0b95\u0bbf\u0b95\u0bbf\u0bb1\u0ba4\u0bc1.",
+    "query": "modern high tech workspace career growth",
+    "vlm_score": 4.51,
+    "human_score": 4.7,
+    "rubric_tier": "Strong (4-5)",
+    "notes": "Real footage depicts 'modern high tech workspace career growth' with clean lighting and no logos."
+  }
+]

@@ -1,0 +1,62 @@
+{
+  "job_id": "job_37d2fdf50ea3",
+  "language": "en",
+  "total_duration": 17.808,
+  "aspect_ratios": [
+    "16:9",
+    "9:16"
+  ],
+  "scene_count": 2,
+  "repeat_clip_count": 0,
+  "average_relevance_score": 3.98,
+  "scenes": [
+    {
+      "scene_index": 0,
+      "start_time": 0.0,
+      "end_time": 8.55,
+      "duration": 8.55,
+      "narration_text": "Heavy monsoon rains caused devastating floods across several coastal villages this week, leaving hundreds of families displaced.",
+      "visual_hint": null,
+      "search_query": "modern lifestyle workspace sunlit",
+      "disambiguation_notes": null,
+      "safety_flags": [
+        "SENSITIVE_RESPECTFUL_TONE"
+      ],
+      "clip_id": "pixabay_1049",
+      "source": "pixabay",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by Coverr-Free-Footage on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-1049/",
+      "ai_generated": false,
+      "selection_rule": "R2_STOCK_THRESHOLD_MET",
+      "selection_reason": "Selected stock clip from 'pixabay' because VLM relevance 3.98 >= threshold 3.50 (0 cost, real-world footage).",
+      "relevance_score": 3.98,
+      "vlm_rationale": "Independent mock VLM verified visual alignment with 'modern lifestyle workspace sunlit' (overlap=0.25).",
+      "crop_focus_x": 0.543,
+      "color_normalized": true
+    },
+    {
+      "scene_index": 1,
+      "start_time": 8.55,
+      "end_time": 17.808,
+      "duration": 9.258,
+      "narration_text": "Local volunteers and emergency responders worked quietly through the night to deliver clean water, blankets, and medical aid.",
+      "visual_hint": null,
+      "search_query": "modern lifestyle workspace sunlit",
+      "disambiguation_notes": null,
+      "safety_flags": [],
+      "clip_id": "pixabay_275498",
+      "source": "pixabay",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by blackmarketmusic on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-275498/",
+      "ai_generated": false,
+      "selection_rule": "R2_STOCK_THRESHOLD_MET",
+      "selection_reason": "Selected stock clip from 'pixabay' because VLM relevance 3.98 >= threshold 3.50 (0 cost, real-world footage).",
+      "relevance_score": 3.98,
+      "vlm_rationale": "Independent mock VLM verified visual alignment with 'modern lifestyle workspace sunlit' (overlap=0.25).",
+      "crop_focus_x": 0.496,
+      "color_normalized": true
+    }
+  ]
+}

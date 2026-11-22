@@ -3,6 +3,7 @@
 from typing import List, Optional
 
 from google import genai
+from google.genai import types
 from pydantic import BaseModel, Field
 
 from app.adapters.base import PlannedScene, ScenePlannerAdapter
@@ -100,17 +101,17 @@ class GeminiScenePlannerAdapter(ScenePlannerAdapter):
 
         llm_by_idx = {}
         try:
-            client = genai.Client(api_key=self.api_key)
-            interaction = client.interactions.create(
+            client = genai.Client(api_key=self.api_key, http_options={"api_version": "v1beta"})
+            resp = client.models.generate_content(
                 model=self.model_name,
-                input=prompt,
-                response_format={
-                    "type": "text",
-                    "mime_type": "application/json",
-                    "schema": LLMPlanBatch.model_json_schema(),
-                },
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=LLMPlanBatch,
+                    temperature=0.2,
+                ),
             )
-            batch = LLMPlanBatch.model_validate_json(interaction.output_text)
+            batch = LLMPlanBatch.model_validate_json(resp.text)
             llm_by_idx = {item.scene_index: item for item in batch.scenes}
         except Exception as exc:
             logger.warning("gemini_planner_fallback", error=str(exc))

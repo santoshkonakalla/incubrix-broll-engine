@@ -24,7 +24,7 @@ SCRIPT_60S = (
 
 def _submit_and_wait(base_url: str, headers: Dict[str, str], payload: Dict[str, Any]) -> Dict[str, Any]:
     t0 = time.perf_counter()
-    with httpx.Client(timeout=180.0) as client:
+    with httpx.Client(timeout=360.0) as client:
         r = client.post(
             f"{base_url}/api/v1/broll/jobs",
             headers={**headers, "Idempotency-Key": f"bench_{uuid.uuid4().hex[:10]}"},

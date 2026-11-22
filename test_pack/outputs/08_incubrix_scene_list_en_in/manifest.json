@@ -1,0 +1,139 @@
+{
+  "schema_version": "1.0.0",
+  "job_id": "job_e3049a3c13bb",
+  "created_at": "2026-11-22T11:06:51.256461",
+  "completed_at": "2026-11-22T11:08:25.907872Z",
+  "seed": 42,
+  "settings": {
+    "adapter_mode": "live",
+    "aspect_ratios": [
+      "16:9",
+      "9:16"
+    ],
+    "style": "bright modern documentary",
+    "avoid": [],
+    "captions": {
+      "burn_in": true,
+      "srt": true
+    },
+    "stock_min_relevance_score": 3.5,
+    "min_scene_duration_seconds": 2.5,
+    "target_fps": 30,
+    "color_normalize_enabled": true
+  },
+  "models_and_providers": [
+    {
+      "role": "asr",
+      "provider": "groq",
+      "model_or_version": "whisper-large-v3-turbo",
+      "calls": 1,
+      "estimated_cost_usd": 0.00018
+    },
+    {
+      "role": "planner",
+      "provider": "gemini",
+      "model_or_version": "gemini-3.5-flash-lite",
+      "calls": 1,
+      "estimated_cost_usd": 0.0005
+    },
+    {
+      "role": "vlm_scorer",
+      "provider": "groq",
+      "model_or_version": "qwen/qwen3.8-27b",
+      "calls": 9,
+      "estimated_cost_usd": 0.0008
+    },
+    {
+      "role": "tts",
+      "provider": "gemini",
+      "model_or_version": "gemini-2.5-flash-preview-tts",
+      "calls": 1,
+      "estimated_cost_usd": 0.001078
+    },
+    {
+      "role": "footage_source",
+      "provider": "pixabay",
+      "model_or_version": "pixabay-v1",
+      "calls": 3,
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "timings_seconds": {
+    "ingest_and_tts": 2.987,
+    "asr_alignment": 1.99,
+    "scene_planning": 2.733,
+    "footage_selection_and_vlm": 76.222,
+    "render_and_qa": 10.67,
+    "total": 94.652
+  },
+  "cost_estimate_usd": {
+    "total_job_usd": 0.002558,
+    "per_minute_video_usd": 0.009488
+  },
+  "qa_checks": {
+    "16:9": {
+      "passed": true,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "resolution": "1920x1080",
+      "expected_resolution": "1920x1080",
+      "pix_fmt": "yuv420p",
+      "fps": 30.0,
+      "video_duration": 16.133,
+      "audio_duration": 16.176,
+      "audio_drift_seconds": 0.043,
+      "narration_duration_diff_seconds": 0.043,
+      "black_frame_events": 0,
+      "freeze_frame_events": 0
+    },
+    "9:16": {
+      "passed": true,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "resolution": "1080x1920",
+      "expected_resolution": "1080x1920",
+      "pix_fmt": "yuv420p",
+      "fps": 30.0,
+      "video_duration": 16.133,
+      "audio_duration": 16.176,
+      "audio_drift_seconds": 0.043,
+      "narration_duration_diff_seconds": 0.043,
+      "black_frame_events": 0,
+      "freeze_frame_events": 0
+    }
+  },
+  "warnings": [],
+  "rights_and_licences": [
+    {
+      "source": "pixabay",
+      "clip_id": "pixabay_201676",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by Natsu_444 on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-201676/",
+      "commercial_use_allowed": true,
+      "watermarked": false,
+      "ai_generated": false
+    },
+    {
+      "source": "pixabay",
+      "clip_id": "pixabay_42388",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by RoyBuri on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-42388/",
+      "commercial_use_allowed": true,
+      "watermarked": false,
+      "ai_generated": false
+    },
+    {
+      "source": "pixabay",
+      "clip_id": "pixabay_159029",
+      "licence": "Pixabay Content License (Free for Commercial Use, No Watermark)",
+      "attribution": "Video by eloguers on Pixabay",
+      "source_url": "https://pixabay.com/videos/id-159029/",
+      "commercial_use_allowed": true,
+      "watermarked": false,
+      "ai_generated": false
+    }
+  ],
+  "ai_generated_clip_count": 0
+}

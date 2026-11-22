@@ -1,0 +1,112 @@
+{
+  "case_1_abstract_and_stats": {
+    "status": "passed",
+    "abstract_detected": true,
+    "stat_extracted": "40%",
+    "stat_headline": null
+  },
+  "case_2_named_persons_and_brands": {
+    "status": "passed",
+    "named_persons": [
+      "Elon Musk"
+    ],
+    "named_brands": [
+      "Apple"
+    ],
+    "block_ai_generation": true,
+    "suggested_visual_override": "minimalist modern smartphone on clean wooden desk without logo"
+  },
+  "case_3_homonyms": {
+    "status": "passed",
+    "tests": [
+      {
+        "line": "Deploying python scripts across modern cloud servers.",
+        "target": "cloud",
+        "resolutions": [
+          "'cloud' -> modern server room data center glowing racks technology",
+          "'python' -> software developer writing code on laptop dark IDE screen"
+        ],
+        "visual_override": "modern server room data center glowing racks technology"
+      },
+      {
+        "line": "Clicking your computer mouse to update bank balances.",
+        "target": "mouse",
+        "resolutions": [
+          "'mouse' -> hand clicking ergonomic computer mouse on modern desk"
+        ],
+        "visual_override": "hand clicking ergonomic computer mouse on modern desk"
+      },
+      {
+        "line": "A woodworker beside the river bank shapes tables.",
+        "target": "bank",
+        "resolutions": [
+          "'bank' -> peaceful flowing river edge green grassy riverbank nature"
+        ],
+        "visual_override": "peaceful flowing river edge green grassy riverbank nature"
+      },
+      {
+        "line": "Financial value comes from disciplined monthly savings.",
+        "target": "value",
+        "resolutions": [
+          "'value' -> clean financial growth chart on tablet calm modern workspace"
+        ],
+        "visual_override": "clean financial growth chart on tablet calm modern workspace"
+      }
+    ]
+  },
+  "case_4_sad_news": {
+    "status": "passed",
+    "is_sensitive_news": true,
+    "flags": [
+      "SENSITIVE_RESPECTFUL_TONE"
+    ],
+    "negative_keywords": [
+      "blood",
+      "celebration",
+      "graphic",
+      "happy",
+      "laughing",
+      "party",
+      "smiling"
+    ]
+  },
+  "case_5_smart_framing_9x16": {
+    "status": "passed",
+    "detected_focus_x": 0.845,
+    "crop_expression": "crop=404:720:876:0"
+  },
+  "case_6_edge_inputs": {
+    "status": "passed",
+    "empty_script_envelope": {
+      "code": "EMPTY_SCRIPT",
+      "message": "Request validation failed.",
+      "retryable": false,
+      "details": {
+        "validation_errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "body"
+            ],
+            "msg": "Value error, EMPTY_SCRIPT: 'script' cannot be empty or whitespace.",
+            "input": {
+              "script": ""
+            },
+            "ctx": {
+              "error": "EMPTY_SCRIPT: 'script' cannot be empty or whitespace."
+            }
+          }
+        ]
+      }
+    },
+    "wrong_audio_status": 415
+  },
+  "case_7_resilience_and_concurrency": {
+    "status": "passed",
+    "failover_job_id": "job_c1bac0eb60c6",
+    "final_status": "succeeded",
+    "warnings": [
+      "Scene 0: all external footage sources unavailable; used programmatic animated card fallback."
+    ]
+  }
+}

@@ -1,13 +1,41 @@
-"""Compute agreement between independent VLM scores and human 1-5 ratings (Outstanding Level)."""
+"""Compute agreement between independent VLM scores and human 1-5 ratings (Outstanding Level).
+Pure Python implementation with zero DLL / external library dependency for rock-solid portability.
+"""
 
 import argparse
 import json
+import math
 from pathlib import Path
 import sys
-from typing import List
+from typing import List, Tuple
 
-import numpy as np
-from scipy.stats import pearsonr, spearmanr
+
+def _rank(values: List[float]) -> List[float]:
+    """Compute average ranks for tied values."""
+    indexed = sorted(enumerate(values), key=lambda x: x[1])
+    ranks = [0.0] * len(values)
+    i = 0
+    n = len(values)
+    while i < n:
+        j = i
+        while j < n - 1 and indexed[j + 1][1] == indexed[j][1]:
+            j += 1
+        avg_rank = (i + j + 2) / 2.0  # 1-based ranking
+        for k in range(i, j + 1):
+            ranks[indexed[k][0]] = avg_rank
+        i = j + 1
+    return ranks
+
+
+def _pearson(x: List[float], y: List[float]) -> float:
+    n = len(x)
+    mx = sum(x) / n
+    my = sum(y) / n
+    num = sum((xi - mx) * (yi - my) for xi, yi in zip(x, y))
+    den_x = sum((xi - mx) ** 2 for xi in x)
+    den_y = sum((yi - my) ** 2 for yi in y)
+    den = math.sqrt(den_x * den_y)
+    return num / den if den > 1e-9 else 0.0
 
 
 def main() -> None:
@@ -23,28 +51,32 @@ def main() -> None:
 
     vlm: List[float] = [float(r["vlm_score"]) for r in rows]
     human: List[float] = [float(r["human_score"]) for r in rows]
+    n = len(rows)
 
-    v_arr = np.array(vlm, dtype=float)
-    h_arr = np.array(human, dtype=float)
-    diffs = np.abs(v_arr - h_arr)
+    diffs = [abs(v - h) for v, h in zip(vlm, human)]
+    mae = sum(diffs) / n
+    rmse = math.sqrt(sum(d ** 2 for d in diffs) / n)
 
-    pr, p_val = pearsonr(v_arr, h_arr) if np.std(v_arr) > 0 and np.std(h_arr) > 0 else (0.0, 1.0)
-    sr, s_val = spearmanr(v_arr, h_arr) if np.std(v_arr) > 0 and np.std(h_arr) > 0 else (0.0, 1.0)
+    pr = _pearson(vlm, human)
+    sr = _pearson(_rank(vlm), _rank(human))
+
+    within_0_5 = sum(1 for d in diffs if d <= 0.5) / n * 100.0
+    within_1_0 = sum(1 for d in diffs if d <= 1.0) / n * 100.0
+    h_4_5 = sum(1 for h in human if h >= 4.0) / n * 100.0
+    h_3_plus = sum(1 for h in human if h >= 3.0) / n * 100.0
 
     summary = {
-        "total_scenes_evaluated": len(rows),
-        "mean_human_score": round(float(np.mean(h_arr)), 3),
-        "mean_vlm_score": round(float(np.mean(v_arr)), 3),
-        "pct_human_4_or_5": round(float(np.mean(h_arr >= 4.0) * 100.0), 2),
-        "pct_human_3_or_above_coverage": round(float(np.mean(h_arr >= 3.0) * 100.0), 2),
-        "mae": round(float(np.mean(diffs)), 3),
-        "rmse": round(float(np.sqrt(np.mean(diffs ** 2))), 3),
-        "within_0_5_agreement_pct": round(float(np.mean(diffs <= 0.5) * 100.0), 2),
-        "within_1_0_agreement_pct": round(float(np.mean(diffs <= 1.0) * 100.0), 2),
-        "pearson_r": round(float(pr), 4),
-        "pearson_p_value": round(float(p_val), 6),
-        "spearman_rho": round(float(sr), 4),
-        "spearman_p_value": round(float(s_val), 6),
+        "total_scenes_evaluated": n,
+        "mean_human_score": round(sum(human) / n, 3),
+        "mean_vlm_score": round(sum(vlm) / n, 3),
+        "pct_human_4_or_5": round(h_4_5, 2),
+        "pct_human_3_or_above_coverage": round(h_3_plus, 2),
+        "mae": round(mae, 3),
+        "rmse": round(rmse, 3),
+        "within_0_5_agreement_pct": round(within_0_5, 2),
+        "within_1_0_agreement_pct": round(within_1_0, 2),
+        "pearson_r": round(pr, 4),
+        "spearman_rho": round(sr, 4),
     }
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
