@@ -30,10 +30,20 @@ def test_env(tmp_path_factory):
     for k, v in env_vars.items():
         os.environ[k] = v
 
-    # Ensure conda env's ffmpeg is on PATH if running from Windows without activation
-    conda_bin = Path(r"C:\Users\santo\miniconda3\envs\incubrix\Library\bin")
-    if conda_bin.exists() and str(conda_bin) not in os.environ.get("PATH", ""):
-        os.environ["PATH"] = f"{conda_bin};{os.environ.get('PATH', '')}"
+    # Ensure Gyan FFmpeg and conda env's libraries are on PATH if running on Windows
+    conda_paths = [
+        r"C:\Users\santo\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg.Essentials_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-9.0.2-essentials_build\bin",
+        r"C:\Users\santo\miniconda3\envs\incubrix",
+        r"C:\Users\santo\miniconda3\envs\incubrix\Scripts",
+        r"C:\Users\santo\miniconda3\envs\incubrix\Library\bin",
+        r"C:\Users\santo\miniconda3\envs\incubrix\Library\usr\bin",
+        r"C:\Users\santo\miniconda3\envs\incubrix\Library\mingw-w64\bin",
+        r"C:\Users\santo\miniconda3\envs\incubrix\bin",
+    ]
+    cur_path = os.environ.get("PATH", "")
+    new_parts = [p for p in conda_paths if Path(p).exists() and p not in cur_path]
+    if new_parts:
+        os.environ["PATH"] = ";".join(new_parts) + ";" + cur_path
 
     from app.config import get_settings
     from app.db import init_db

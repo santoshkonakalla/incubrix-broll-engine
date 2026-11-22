@@ -1,8 +1,25 @@
 """Application configuration loaded strictly from environment variables / .env."""
 
 from functools import lru_cache
+import os
 from pathlib import Path
+import sys
 from typing import List, Literal
+
+if sys.platform == "win32":
+    _custom_paths = [
+        r"C:\Users\santo\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg.Essentials_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-9.0.2-essentials_build\bin",
+        r"C:\Users\santo\miniconda3\envs\incubrix",
+        r"C:\Users\santo\miniconda3\envs\incubrix\Scripts",
+        r"C:\Users\santo\miniconda3\envs\incubrix\Library\bin",
+        r"C:\Users\santo\miniconda3\envs\incubrix\Library\usr\bin",
+        r"C:\Users\santo\miniconda3\envs\incubrix\Library\mingw-w64\bin",
+        r"C:\Users\santo\miniconda3\envs\incubrix\bin",
+    ]
+    _cur = os.environ.get("PATH", "")
+    _missing = [p for p in _custom_paths if Path(p).exists() and p not in _cur]
+    if _missing:
+        os.environ["PATH"] = ";".join(_missing) + ";" + _cur
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
