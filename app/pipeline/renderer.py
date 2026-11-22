@@ -268,6 +268,7 @@ def render_scene_segment(
     cmd = [
         "ffmpeg",
         "-y",
+        "-threads", "2",
         *input_args,
         "-i", str(src_video.resolve()),
         *overlay_inputs,
@@ -321,6 +322,7 @@ def assemble_video_from_segments(
     cmd = [
         "ffmpeg",
         "-y",
+        "-threads", "2",
         "-f", "concat",
         "-safe", "0",
         "-i", str(concat_list),

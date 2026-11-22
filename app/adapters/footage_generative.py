@@ -33,6 +33,7 @@ def image_to_ken_burns_video(
     )
     cmd = [
         "ffmpeg", "-y",
+        "-threads", "2",
         "-loop", "1",
         "-i", str(image_path),
         "-t", f"{duration:.3f}",

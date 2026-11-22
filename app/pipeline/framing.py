@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Optional, Tuple
 
 import cv2
+cv2.setNumThreads(1)
 import numpy as np
 
 

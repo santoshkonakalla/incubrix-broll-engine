@@ -140,6 +140,7 @@ def render_animated_card_video(
     # Transcode to clean H.264 yuv420p
     cmd = [
         "ffmpeg", "-y",
+        "-threads", "2",
         "-i", str(raw_avi),
         "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p", "-r", str(fps),
         str(out_path),

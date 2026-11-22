@@ -447,6 +447,8 @@ def execute_broll_job(job_id: str, settings: Optional[Settings] = None, storage:
                 seg_cache_key = f"jobs/{job_id}/cache/scene_{sc.scene_index:03d}_{tag}.mp4"
                 store.put_file(seg_local, seg_cache_key, content_type="video/mp4")
                 segment_paths.append(seg_local)
+                import gc
+                gc.collect()
 
             out_video = work_dir / f"video_{tag}.mp4"
             assemble_video_from_segments(segment_paths, audio_path, out_video, work_dir)
@@ -682,6 +684,8 @@ def execute_broll_job(job_id: str, settings: Optional[Settings] = None, storage:
             )
     finally:
         shutil.rmtree(work_dir, ignore_errors=True)
+        import gc
+        gc.collect()
         job_id_ctx.reset(token_job)
         correlation_id_ctx.reset(token_corr)
 
@@ -886,3 +890,5 @@ def execute_swap_scene_clip(
         }
     finally:
         shutil.rmtree(work_dir, ignore_errors=True)
+        import gc
+        gc.collect()

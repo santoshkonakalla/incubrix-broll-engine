@@ -108,7 +108,7 @@ class GeminiTTSAdapter(TTSAdapter):
                 tmp_mp3 = out_path.with_suffix(".edge.mp3")
                 asyncio.run(edge_tts.Communicate(text, edge_voice).save(str(tmp_mp3)))
                 subprocess.run(
-                    ["ffmpeg", "-y", "-i", str(tmp_mp3), "-ar", "24000", "-ac", "1", str(out_path)],
+                    ["ffmpeg", "-y", "-threads", "2", "-i", str(tmp_mp3), "-ar", "24000", "-ac", "1", str(out_path)],
                     capture_output=True,
                     check=True,
                 )
