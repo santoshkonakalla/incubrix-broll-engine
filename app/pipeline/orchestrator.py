@@ -259,6 +259,17 @@ def _select_clip_for_scene(
     raise AppError("PROVIDER_UNAVAILABLE", f"No footage source could satisfy scene {scene.scene_index}.", status_code=503, retryable=True)
 
 
+def release_memory() -> None:
+    """Trigger Python GC and force Linux glibc to return unused heap memory to OS kernel (prevents 512MB OOM)."""
+    import gc
+    gc.collect()
+    try:
+        import ctypes
+        ctypes.CDLL("libc.so.6").malloc_trim(0)
+    except Exception:
+        pass
+
+
 def execute_broll_job(job_id: str, settings: Optional[Settings] = None, storage: Optional[StorageBackend] = None) -> None:
     """Execute a queued B-roll job from start to finish."""
     cfg = settings or get_settings()
@@ -455,8 +466,7 @@ def execute_broll_job(job_id: str, settings: Optional[Settings] = None, storage:
                 seg_cache_key = f"jobs/{job_id}/cache/scene_{sc.scene_index:03d}_{tag}.mp4"
                 store.put_file(seg_local, seg_cache_key, content_type="video/mp4")
                 segment_paths.append(seg_local)
-                import gc
-                gc.collect()
+                release_memory()
 
             out_video = work_dir / f"video_{tag}.mp4"
             assemble_video_from_segments(segment_paths, audio_path, out_video, work_dir)
@@ -692,8 +702,7 @@ def execute_broll_job(job_id: str, settings: Optional[Settings] = None, storage:
             )
     finally:
         shutil.rmtree(work_dir, ignore_errors=True)
-        import gc
-        gc.collect()
+        release_memory()
         job_id_ctx.reset(token_job)
         correlation_id_ctx.reset(token_corr)
 

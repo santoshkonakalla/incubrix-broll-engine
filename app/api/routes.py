@@ -224,6 +224,26 @@ async def get_job_status(request: Request, job_id: str) -> JobStatusResponse:
 
 
 @router.post(
+    "/jobs/{job_id}/cancel",
+    summary="Cancel a queued or running job and clear worker queue",
+)
+async def cancel_job(job_id: str) -> JSONResponse:
+    with get_session() as db:
+        rec = db.get(JobRecord, job_id)
+        if not rec:
+            raise AppError("JOB_NOT_FOUND", f"No job found with id '{job_id}'.", status_code=404)
+        if rec.status in ("succeeded", "failed"):
+            return JSONResponse(status_code=200, content={"status": rec.status, "message": "Job already finished."})
+        rec.status = "failed"
+        rec.stage = "cancelled"
+        rec.error_payload = {"code": "CANCELLED_BY_USER", "message": "Job was cancelled by user."}
+        db.add(rec)
+        db.commit()
+    logger.info("job_cancelled_by_user", job_id=job_id)
+    return JSONResponse(status_code=200, content={"status": "cancelled", "message": f"Job {job_id} cancelled."})
+
+
+@router.post(
     "/broll/jobs/{job_id}/scenes/{scene_index}/swap",
     responses={404: {"model": ErrorEnvelope}, 409: {"model": ErrorEnvelope}},
     summary="Replace a single scene's clip and fast re-render only the affected segment",

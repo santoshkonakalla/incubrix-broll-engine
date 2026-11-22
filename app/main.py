@@ -50,11 +50,33 @@ class SlidingWindowRateLimiter:
 _rate_limiter = SlidingWindowRateLimiter()
 
 
+def _cleanup_stale_jobs_on_startup() -> None:
+    """Fail any jobs left in running or queued state by a previous container instance crash or restart."""
+    try:
+        from app.db import JobRecord, get_session
+        with get_session() as db:
+            stale = db.query(JobRecord).filter(JobRecord.status.in_(["running", "queued"])).all()
+            for j in stale:
+                j.status = "failed"
+                j.stage = "failed"
+                j.error_payload = {
+                    "code": "INSTANCE_RESTARTED",
+                    "message": "The server was restarted. Stale queued state was cleared. Please re-submit your job.",
+                }
+                db.add(j)
+            if stale:
+                db.commit()
+                logger.info("cleaned_stale_jobs_on_startup", count=len(stale))
+    except Exception as exc:
+        logger.warning("cleanup_stale_jobs_failed", error=str(exc))
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     settings = get_settings()
     configure_logging(settings.log_level)
     init_db(settings.database_url)
+    _cleanup_stale_jobs_on_startup()
     get_storage()
     get_queue()
     logger.info("service_started", version=__version__, adapter_mode=settings.adapter_mode)

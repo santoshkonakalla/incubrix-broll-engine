@@ -81,3 +81,22 @@ def test_standardized_error_envelope_on_empty_script_and_missing_job(client):
     assert r_missing.status_code == 404
     err2 = r_missing.json()["error"]
     assert err2["code"] == "JOB_NOT_FOUND"
+
+
+def test_cancel_job_endpoint(client):
+    payload = {
+        "script": "Fast cancellation prevents wasted queue wait times for creators.",
+        "aspect_ratios": ["16:9"],
+        "captions": {"burn_in": False, "srt": True},
+    }
+    r = client.post("/api/v1/broll/jobs", json=payload)
+    assert r.status_code == 202
+    jid = r.json()["job_id"]
+
+    rc = client.post(f"/api/v1/jobs/{jid}/cancel")
+    assert rc.status_code == 200
+    assert rc.json()["status"] in ("cancelled", "succeeded", "failed")
+
+    status_resp = client.get(f"/api/v1/jobs/{jid}")
+    assert status_resp.status_code == 200
+    assert status_resp.json()["status"] in ("failed", "succeeded")

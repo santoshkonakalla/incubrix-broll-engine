@@ -119,7 +119,10 @@
     <div class="card">
       <div class="row" style="justify-content:space-between;">
         <strong>Job Status</strong>
-        <span id="jobIdLabel" class="badge">Idle</span>
+        <div class="row" style="gap:6px;">
+          <span id="jobIdLabel" class="badge">Idle</span>
+          <button id="cancelBtn" class="secondary" style="display:none;padding:2px 8px;font-size:0.75rem;" onclick="cancelCurrentJob()">Cancel &amp; Reset</button>
+        </div>
       </div>
       <div class="bar"><div id="progressBar"></div></div>
       <div id="statusText" style="font-size:0.88rem;color:var(--muted);">Submit a script, audio file, URL, or IncuBrix scene list to begin.</div>
@@ -217,6 +220,8 @@ async function submitJob() {
     jobStartTime = Date.now();
     consecutiveErrors = 0;
     document.getElementById('jobIdLabel').textContent = currentJobId;
+    document.getElementById('cancelBtn').style.display = 'inline-block';
+    document.getElementById('cancelBtn').textContent = 'Cancel & Reset';
     document.getElementById('videoContainer').innerHTML = '';
     document.getElementById('linksBox').innerHTML = '';
     document.getElementById('timelineCard').style.display = 'none';
@@ -224,6 +229,23 @@ async function submitJob() {
   } catch (err) {
     document.getElementById('statusText').innerHTML = '<span style="color:var(--err);">Submission failed: ' + err.message + '</span>';
   }
+}
+
+async function cancelCurrentJob() {
+  if (pollTimer) clearTimeout(pollTimer);
+  const jid = currentJobId;
+  if (jid) {
+    try {
+      await fetch('/api/v1/jobs/' + jid + '/cancel', { method: 'POST', headers: getHeaders() });
+    } catch (_) {}
+  }
+  currentJobId = null;
+  jobStartTime = null;
+  consecutiveErrors = 0;
+  document.getElementById('jobIdLabel').textContent = 'Idle';
+  document.getElementById('cancelBtn').style.display = 'none';
+  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('statusText').innerHTML = '<span style="color:var(--muted);">Job was cancelled / reset. You can submit a new request now.</span>';
 }
 
 async function pollJob(jobId) {
@@ -263,19 +285,35 @@ async function pollJob(jobId) {
       stageDesc = `Retrieving & VLM ranking footage (Scene ${parts[0]} of ${parts[1]})`;
     }
 
-    document.getElementById('statusText').innerHTML =
-      `<strong>${data.status.toUpperCase()} (${progress}%)</strong> — ${stageDesc} <span style="color:var(--muted);margin-left:8px;">[Elapsed: ${elapsedSec}s]</span>`;
+    if (data.status === 'queued') {
+      document.getElementById('cancelBtn').style.display = 'inline-block';
+      let qNote = `Queued in worker pool (${elapsedSec}s elapsed)`;
+      if (elapsedSec >= 12) {
+        qNote += ` &bull; <em>Waiting for worker instance / server cold-start.</em> <button class="secondary" onclick="cancelCurrentJob()" style="padding:2px 8px;margin-left:8px;">Cancel &amp; Retry</button>`;
+      }
+      document.getElementById('statusText').innerHTML =
+        `<strong>QUEUED (0%)</strong> — ${qNote}`;
+    } else {
+      if (data.status === 'running') {
+        document.getElementById('cancelBtn').style.display = 'inline-block';
+      }
+      document.getElementById('statusText').innerHTML =
+        `<strong>${data.status.toUpperCase()} (${progress}%)</strong> — ${stageDesc} <span style="color:var(--muted);margin-left:8px;">[Elapsed: ${elapsedSec}s]</span>`;
+    }
 
     const wBox = document.getElementById('warningsBox');
     wBox.innerHTML = (data.warnings || []).map(w => `<div class="pill warn">${w}</div>`).join('');
 
     if (data.status === 'succeeded') {
+      document.getElementById('cancelBtn').style.display = 'none';
       renderResult(data);
       return;
     }
     if (data.status === 'failed') {
+      document.getElementById('cancelBtn').style.display = 'none';
+      const msg = data.error_payload?.message || data.error || 'Job failed';
       document.getElementById('statusText').innerHTML =
-        `<span style="color:var(--err);">FAILED (${elapsedSec}s): ${JSON.stringify(data.error_payload || data.error || 'Job failed')}</span>`;
+        `<span style="color:var(--err);">FAILED (${elapsedSec}s): ${msg}</span> <button class="secondary" onclick="cancelCurrentJob()" style="padding:2px 8px;margin-left:8px;">Reset</button>`;
       return;
     }
     pollTimer = setTimeout(() => pollJob(jobId), 1200);
