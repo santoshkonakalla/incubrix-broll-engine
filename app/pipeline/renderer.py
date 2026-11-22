@@ -167,8 +167,8 @@ def probe_video_stream(video_path: Path) -> Dict[str, float | int | str]:
 
 def compute_color_eq_filter(video_path: Path, target_luma: float = 0.46, target_sat: float = 0.38) -> str:
     """
-    Measure clip average brightness & saturation and compute a gentle FFmpeg eq filter
-    so clips from stock libraries and generative models visually belong to one cohesive video.
+    Measure clip average brightness & saturation. If the footage is already balanced,
+    returns an empty string to preserve pristine original camera colors without artificial distortion.
     """
     k = f"{video_path.resolve()}_{target_luma}_{target_sat}"
     if k in _color_eq_cache:
@@ -176,7 +176,7 @@ def compute_color_eq_filter(video_path: Path, target_luma: float = 0.46, target_
 
     cap = cv2.VideoCapture(str(video_path))
     if not cap.isOpened():
-        return "eq=contrast=1.02:saturation=1.02"
+        return ""
     try:
         total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
         idxs = [0, max(0, total // 2), max(0, total - 2)]
@@ -192,18 +192,22 @@ def compute_color_eq_filter(video_path: Path, target_luma: float = 0.46, target_
             sats.append(float(np.mean(hsv[:, :, 1])))
 
         if not lumas:
-            eq_val = "eq=contrast=1.02:saturation=1.02"
-            _color_eq_cache[k] = eq_val
-            return eq_val
+            _color_eq_cache[k] = ""
+            return ""
 
         mean_luma = float(np.mean(lumas))
         mean_sat = float(np.mean(sats))
 
+        # Do not artificially apply colour correction if source footage is already balanced
+        if abs(target_luma - mean_luma) <= 0.08 and (0.22 <= mean_sat <= 0.52):
+            _color_eq_cache[k] = ""
+            return ""
+
         # Gently nudge brightness & saturation toward cohesive target without clipping
-        brightness_delta = max(-0.12, min(0.12, (target_luma - mean_luma) * 0.45))
-        sat_mult = max(0.85, min(1.18, target_sat / max(0.15, mean_sat) if mean_sat > 0.05 else 1.0))
-        sat_mult = 0.6 + 0.4 * sat_mult  # damped adjustment
-        eq_val = f"eq=brightness={brightness_delta:.3f}:contrast=1.03:saturation={sat_mult:.3f}"
+        brightness_delta = max(-0.10, min(0.10, (target_luma - mean_luma) * 0.40))
+        sat_mult = max(0.88, min(1.15, target_sat / max(0.15, mean_sat) if mean_sat > 0.05 else 1.0))
+        sat_mult = 0.7 + 0.3 * sat_mult  # heavily damped adjustment
+        eq_val = f"eq=brightness={brightness_delta:.3f}:contrast=1.01:saturation={sat_mult:.3f}"
         _color_eq_cache[k] = eq_val
         return eq_val
     finally:
@@ -249,7 +253,9 @@ def render_scene_segment(
         "setsar=1",
     ]
     if color_normalize:
-        filters.append(compute_color_eq_filter(src_video))
+        eq_filt = compute_color_eq_filter(src_video)
+        if eq_filt:
+            filters.append(eq_filt)
 
     # Optional scene-local burned-in captions (enables 1-second -c:v copy swap even with burn_in=True!)
     scene_srt_path: Optional[Path] = None
@@ -293,7 +299,7 @@ def render_scene_segment(
         for c_idx, (c_start, c_end, _png) in enumerate(overlay_cues, start=1):
             next_label = f"v{c_idx}"
             fc_parts.append(
-                f"[{prev_label}][{c_idx}:v]overlay=0:0:enable='between(t,{c_start:.3f},{c_end:.3f})'[{next_label}]"
+                f"[{prev_label}][{c_idx}:v]overlay=0:0:format=yuv420:enable='between(t,{c_start:.3f},{c_end:.3f})'[{next_label}]"
             )
             prev_label = next_label
         fc_parts.append(f"[{prev_label}]format=yuv420p[vout]")
@@ -320,6 +326,10 @@ def render_scene_segment(
         "-bufsize", "4000k",
         "-profile:v", "main",
         "-pix_fmt", "yuv420p",
+        "-colorspace", "bt709",
+        "-color_primaries", "bt709",
+        "-color_trc", "bt709",
+        "-color_range", "tv",
         "-r", str(fps),
         "-video_track_timescale", "90000",
         "-g", str(fps * 2),

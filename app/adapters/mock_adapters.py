@@ -102,14 +102,15 @@ def generate_mock_video_clip(
 
     total_frames = max(int(round(duration * fps)), fps * 2)
     writer = cv2.VideoWriter(str(raw), cv2.VideoWriter_fourcc(*"mp4v"), float(fps), (width, height))
-    layout_variant = h_int % 4
+    freq_x = 1.0 + (h_int % 5) * 0.7
+    phase = ((h_int >> 4) % 10) * 0.3
     try:
-        xs = np.linspace(0.0, 2.0 * math.pi, width, dtype=np.float32)
+        xs = np.linspace(0.0, 2.0 * math.pi * freq_x, width, dtype=np.float32) + phase
         for i in range(total_frames):
             t = i / max(1, total_frames - 1)
             frame = np.zeros((height, width, 3), dtype=np.uint8)
             # Smooth continuous wave background (no hard wrap seam, never black, never frozen)
-            wave = 0.85 + 0.15 * np.sin(xs + i * 0.09)
+            wave = 0.82 + 0.18 * np.sin(xs + i * 0.09)
             frame[:, :, 0] = np.clip(base_b * wave, 35, 220).astype(np.uint8)
             frame[:, :, 1] = np.clip(base_g * wave, 35, 220).astype(np.uint8)
             frame[:, :, 2] = np.clip(base_r * wave, 35, 220).astype(np.uint8)
@@ -119,6 +120,7 @@ def generate_mock_video_clip(
             is_tech = any(k in label.lower() for k in ("robot", "ai", "intelligence", "tech", "computer", "cloud", "code", "python", "smart", "algorithm", "software"))
             is_nature = any(k in label.lower() for k in ("planet", "earth", "nature", "tree", "trees", "water", "forest", "green", "environment", "plastic", "waste", "recycle", "solar", "garden", "wildlife", "climate", "ocean", "river"))
             is_finance = any(k in label.lower() for k in ("finance", "money", "budget", "savings", "growth", "invest", "banking", "wealth", "economy", "market", "sales"))
+            is_sports = any(k in label.lower() for k in ("cricket", "sport", "sports", "football", "soccer", "basketball", "tennis", "match", "tournament", "stadium", "player", "athlete", "game"))
 
             if is_health:
                 # Clinical medical slate-cyan gradient
@@ -164,16 +166,22 @@ def generate_mock_video_clip(
                     f_y = int(height * (0.75 - 0.45 * (f_frac ** 1.3) + 0.04 * math.sin(f_frac * 12 + t * 4)))
                     f_pts.append([px, f_y])
                 cv2.polylines(frame, [np.array(f_pts, np.int32)], False, (60, 220, 100), 3, cv2.LINE_AA)
+            elif is_sports:
+                # Deep athletic stadium field gradient
+                for gy in range(height):
+                    frac = gy / float(height)
+                    frame[gy, :] = (int(26 + 18 * frac), int(85 + 45 * frac), int(32 + 22 * frac))
+                # Stadium floodlight glow across top
+                cv2.ellipse(frame, (width // 2, int(height * 0.12)), (int(width * 0.45), 55), 0, 0, 180, (140, 240, 220), 2, cv2.LINE_AA)
+                cv2.circle(frame, (int(width * 0.2), int(height * 0.12)), 25, (220, 255, 245), -1)
+                cv2.circle(frame, (int(width * 0.8), int(height * 0.12)), 25, (220, 255, 245), -1)
             elif edge_subject_x is None:
-                if layout_variant == 0:
-                    cv2.rectangle(frame, (0, int(height * 0.62)), (width, height), (base_b // 2, base_g // 2, base_r // 2), -1)
-                elif layout_variant == 1:
-                    cv2.rectangle(frame, (0, 0), (int(width * 0.42), height), (min(230, base_b + 40), base_g, base_r), -1)
-                elif layout_variant == 2:
-                    pts = np.array([[0, height], [width // 2, int(height * 0.25)], [width, height]], np.int32)
-                    cv2.fillPoly(frame, [pts], (base_b, min(230, base_g + 45), base_r // 2))
-                else:
-                    cv2.rectangle(frame, (int(width * 0.55), 0), (width, height), (base_b // 2, base_g, min(230, base_r + 45)), -1)
+                # Smooth continuous full-frame 2D gradient (NO SPLIT-SCREEN VERTICAL BLOCKS)
+                for gy in range(height):
+                    frac_y = 0.75 + 0.45 * (gy / float(height))
+                    frame[gy, :, 0] = np.clip(base_b * wave * frac_y, 25, 230).astype(np.uint8)
+                    frame[gy, :, 1] = np.clip(base_g * wave * frac_y, 25, 230).astype(np.uint8)
+                    frame[gy, :, 2] = np.clip(base_r * wave * frac_y, 25, 230).astype(np.uint8)
 
             # High-contrast subject (can sit at the edge for Hard Case #5 9:16 smart-crop tests!)
             if edge_subject_x is not None:
@@ -226,10 +234,18 @@ def generate_mock_video_clip(
                 cv2.rectangle(frame, (cx - 60, cy - 20), (cx - 25, cy + 80), (60, 180, 80), -1)
                 cv2.rectangle(frame, (cx - 15, cy - 60), (cx + 20, cy + 80), (70, 210, 95), -1)
                 cv2.rectangle(frame, (cx + 30, cy - 100), (cx + 65, cy + 80), (80, 240, 110), -1)
+            elif is_sports:
+                # Animated cricket / sports ball with dynamic seam and motion glow
+                ball_r = 52
+                cv2.circle(frame, (cx, cy), ball_r + 14, (110, 240, 180), 2, cv2.LINE_AA)
+                cv2.circle(frame, (cx, cy), ball_r, (40, 45, 195), -1)  # Deep red cricket ball
+                # Cricket ball white seam curve
+                cv2.ellipse(frame, (cx, cy), (ball_r - 2, int(ball_r * 0.55)), int(t * 180), 0, 360, (245, 245, 250), 3, cv2.LINE_AA)
             else:
-                cv2.circle(frame, (cx, cy), 95, (255, 245, 220), -1)
-                cv2.circle(frame, (cx, cy), 60, (40, 210, 120), -1)
-                cv2.rectangle(frame, (cx - 42, cy - 28), (cx + 42, cy + 28), (20, 40, 90), 5)
+                # Clean modern cinematic orb / lens flare (no box / split rectangle)
+                glow_r = int(75 + 10 * math.sin(t * 3 * math.pi))
+                cv2.circle(frame, (cx, cy), glow_r, (min(255, base_b + 80), min(255, base_g + 80), min(255, base_r + 80)), -1, cv2.LINE_AA)
+                cv2.circle(frame, (cx, cy), int(glow_r * 0.65), (255, 255, 255), -1, cv2.LINE_AA)
 
             # Elegant scene title pill badge
             if is_health and any(k in label.lower() for k in ("ai", "tech", "artificial")):
@@ -252,6 +268,10 @@ def generate_mock_video_clip(
                 title_text = "Artificial Intelligence & Technology"
             elif is_finance:
                 title_text = "Financial Growth & Analytics"
+            elif is_sports and "cricket" in label.lower():
+                title_text = "Cricket Match & Stadium Sports"
+            elif is_sports:
+                title_text = "Athletics & Competitive Sports"
             else:
                 clean_lbl = re.sub(r"^[a-zA-Z0-9_\-]+:\s*", "", label).strip().title()
                 title_text = clean_lbl[:45]
@@ -725,6 +745,12 @@ def _is_wikimedia_title_relevant(query: str, search_q: str, title: str) -> bool:
             prefixes=("universit", "educat")
         )
 
+    # 13. Sports / Cricket / Athletics / Stadium domain
+    if any(k in combined_q for k in ("cricket", "sport", "sports", "football", "soccer", "basketball", "tennis", "match", "stadium", "tournament", "player", "athlete", "game")):
+        return matches(
+            words=("cricket", "sport", "sports", "match", "stadium", "tournament", "player", "bowler", "batsman", "ball", "football", "soccer", "game", "athletic", "field", "pitch")
+        )
+
     # Default fallback: title must contain at least one meaningful search term
     q_words = [w for w in re.findall(r"[a-zA-Z]{4,}", search_q.lower()) if w not in {"video", "footage", "modern", "cinematic", "wide"}]
     return bool(set(q_words) & title_tokens)
@@ -748,6 +774,8 @@ def _try_fetch_wikimedia_video(query: str, out_path: Path, duration_needed: floa
             candidate_queries.extend(["planet earth", "nature forest trees"])
         elif any(k in q_l for k in ("robot", "robotics", "ai", "artificial intelligence")):
             candidate_queries.extend(["robot humanoid robotics", "artificial intelligence technology"])
+        elif any(k in q_l for k in ("cricket", "football", "soccer", "basketball", "tennis", "sports", "stadium", "match", "tournament", "player", "athlete")):
+            candidate_queries.extend([f"{search_q} match", f"{search_q} sport", "cricket match tournament", "cricket stadium match"])
 
         headers = {"User-Agent": "IncuBrixBrollEngine/1.0 (santoshkonakalla7@gmail.com)"}
         with httpx.Client(headers=headers, follow_redirects=True, timeout=8.0) as client:
