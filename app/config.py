@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     gemini_tts_model: str = Field(default="gemini-3.8-flash-lite-tts")
     gemini_image_model: str = Field(default="gemini-3.1-flash-lite-image")
     groq_asr_model: str = Field(default="whisper-large-v3-turbo")
-    groq_vlm_model: str = Field(default="meta-llama/llama-4-scout-17b-16e-instruct")
+    groq_vlm_model: str = Field(default="qwen/qwen3.8-27b")
 
     # Pipeline limits & quality parameters
     max_audio_duration_seconds: float = Field(default=600.0, gt=0)
