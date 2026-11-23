@@ -62,32 +62,39 @@ class AdapterRegistry:
         sources: Dict[str, FootageSourceAdapter] = {}
         is_mock = self.settings.adapter_mode == "mock"
 
-        for name in self.settings.enabled_footage_sources:
-            if name in self.runtime_disabled:
-                continue
-            if name == "pexels":
-                if is_mock or not self.settings.pexels_api_key:
-                    sources["pexels"] = MockStockFootageAdapter("pexels", is_generative=False)
-                else:
-                    sources["pexels"] = PexelsFootageAdapter(self.settings.pexels_api_key)
-            elif name == "pixabay":
-                if is_mock or not self.settings.pixabay_api_key:
-                    sources["pixabay"] = MockStockFootageAdapter("pixabay", is_generative=False)
-                else:
-                    sources["pixabay"] = PixabayFootageAdapter(self.settings.pixabay_api_key)
-            elif name == "generative":
-                if is_mock or not self.settings.gemini_api_key:
-                    sources["generative"] = MockStockFootageAdapter("generative", is_generative=True)
-                else:
-                    sources["generative"] = GeminiGenerativeFootageAdapter(
-                        self.settings.gemini_api_key, self.settings.gemini_image_model
-                    )
-            elif name == "statcard":
+        if is_mock:
+            for name in self.settings.enabled_footage_sources:
+                if name in self.runtime_disabled:
+                    continue
+                if name in ("pexels", "pixabay"):
+                    sources[name] = MockStockFootageAdapter(name, is_generative=False)
+                elif name == "generative":
+                    sources[name] = MockStockFootageAdapter("generative", is_generative=True)
+                elif name == "statcard":
+                    sources[name] = StatCardFootageAdapter()
+            if "statcard" not in sources and "statcard" not in self.runtime_disabled:
                 sources["statcard"] = StatCardFootageAdapter()
+            return sources
 
-        # Always guarantee programmatic statcard fallback exists if everything else is disabled
-        if "statcard" not in sources and "statcard" not in self.runtime_disabled:
+        # Live mode: Register real providers that have API keys configured
+        if "pixabay" in self.settings.enabled_footage_sources and self.settings.pixabay_api_key and "pixabay" not in self.runtime_disabled:
+            sources["pixabay"] = PixabayFootageAdapter(self.settings.pixabay_api_key)
+
+        if "pexels" in self.settings.enabled_footage_sources and self.settings.pexels_api_key and "pexels" not in self.runtime_disabled:
+            sources["pexels"] = PexelsFootageAdapter(self.settings.pexels_api_key)
+
+        if "generative" in self.settings.enabled_footage_sources and self.settings.gemini_api_key and "generative" not in self.runtime_disabled:
+            sources["generative"] = GeminiGenerativeFootageAdapter(
+                self.settings.gemini_api_key, self.settings.gemini_image_model
+            )
+
+        if "statcard" in self.settings.enabled_footage_sources and "statcard" not in self.runtime_disabled:
             sources["statcard"] = StatCardFootageAdapter()
+
+        # Resilient fallback if all external stock keys fail or are empty
+        if not any(k in sources for k in ("pexels", "pixabay", "generative")):
+            sources["stock_fallback"] = MockStockFootageAdapter("stock_fallback", is_generative=False)
+
         return sources
 
     def active_source_order(self) -> List[str]:

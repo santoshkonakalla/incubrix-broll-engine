@@ -51,7 +51,7 @@ class Settings(BaseSettings):
     gemini_api_key: str = Field(default="")
     groq_api_key: str = Field(default="")
     pexels_api_key: str = Field(default="")
-    pixabay_api_key: str = Field(default="")
+    pixabay_api_key: str = Field(default="37474342-426adcb4ebdc22b66d6535dee")
 
     # Model names
     gemini_planner_model: str = Field(default="gemini-3.5-flash-lite")

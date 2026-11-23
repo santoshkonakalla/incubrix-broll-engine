@@ -95,7 +95,8 @@ class GeminiScenePlannerAdapter(ScenePlannerAdapter):
             "4. For sad/tragic/sensitive news: pick dignified, subdued, calm visuals — never smiling or upbeat scenes.\n"
             f"5. Desired visual style: {style}\n"
             f"6. STRICTLY AVOID: {', '.join(avoid) if avoid else 'none'}\n"
-            "7. If a visual_hint is provided, honor it closely.\n\n"
+            "7. If a visual_hint is provided, honor it closely.\n"
+            "8. For search queries, use 3-5 specific, professional domain nouns (e.g. 'data center server racks technology', 'doctor examining patient hospital'). Never include ambiguous decorative words like 'lights', 'fire', 'tree', 'candle', 'night', 'holiday', or 'celebration' unless explicitly requested by the script.\n\n"
             f"FULL TRANSCRIPT:\n{transcript}\n\n"
             "SCENES:\n" + "\n".join(scene_lines)
         )

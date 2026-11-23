@@ -90,7 +90,7 @@ def _select_clip_for_scene(
     duration_needed = max(1.0, scene.end_time - scene.start_time)
     best_stock: Optional[Tuple[FootageCandidate, Path, VLMScoreResult]] = None
 
-    stock_order = [name for name in ("pexels", "pixabay") if name in sources and name not in failed_sources]
+    stock_order = [name for name in ("pixabay", "pexels", "stock_fallback") if name in sources and name not in failed_sources]
     if preferred_source and preferred_source in stock_order:
         stock_order.remove(preferred_source)
         stock_order.insert(0, preferred_source)

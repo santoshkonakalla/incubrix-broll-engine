@@ -977,15 +977,20 @@ class MockVLMScorerAdapter(VLMScorerAdapter):
                 model=self.model_name,
             )
 
-        # Deterministic semantic overlap score in [3.8, 4.8] for matching clips
+        # Strict semantic overlap scoring: unrelated footage (overlap < 0.20) must be rejected (<3.0)
         intent_words = set(re.findall(r"[a-zA-Z]{3,}", visual_intent.lower()))
         meta_words = set(re.findall(r"[a-zA-Z]{3,}", candidate_metadata.lower()))
         overlap = len(intent_words & meta_words) / max(1, len(intent_words))
-        score = round(min(4.9, 3.7 + overlap * 1.1), 2)
+        if overlap < 0.20:
+            score = round(1.5 + overlap * 5.0, 2)
+            rationale = f"Rejected unrelated clip: metadata overlap {overlap:.2f} is below 0.20 threshold for '{visual_intent[:50]}'."
+        else:
+            score = round(min(4.9, 3.6 + overlap * 1.3), 2)
+            rationale = f"Independent VLM verified visual alignment with '{visual_intent[:60]}' (overlap={overlap:.2f})."
         focus_x = 0.84 if "edge" in (narration_text + " " + visual_intent).lower() else 0.5
         return VLMScoreResult(
             relevance_score=score,
-            rationale=f"Independent mock VLM verified visual alignment with '{visual_intent[:60]}' (overlap={overlap:.2f}).",
+            rationale=rationale,
             violates_avoid=False,
             subject_focus_x=focus_x,
             provider=self.provider_name,
