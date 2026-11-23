@@ -9,7 +9,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     MKL_NUM_THREADS=1 \
     FFMPEG_THREADS=1 \
     RENDER_RESOLUTION=720p \
-    WORKER_CONCURRENCY=1
+    WORKER_CONCURRENCY=2
 
 # System packages: FFmpeg + Noto fonts (Latin, Devanagari for Hindi, Tamil for Tamil) + OpenCV runtime libs
 RUN apt-get update && apt-get install -y --no-install-recommends \

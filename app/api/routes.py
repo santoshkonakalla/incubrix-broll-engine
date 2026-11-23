@@ -191,7 +191,7 @@ async def create_broll_job_upload(
     responses={404: {"model": ErrorEnvelope}},
     summary="Poll background job status, progress (0-100), warnings, and artifact download links",
 )
-async def get_job_status(request: Request, job_id: str) -> JobStatusResponse:
+def get_job_status(request: Request, job_id: str) -> JobStatusResponse:
     with get_session() as db:
         rec = db.get(JobRecord, job_id)
         if not rec:
@@ -227,7 +227,7 @@ async def get_job_status(request: Request, job_id: str) -> JobStatusResponse:
     "/jobs/{job_id}/cancel",
     summary="Cancel a queued or running job and clear worker queue",
 )
-async def cancel_job(job_id: str) -> JSONResponse:
+def cancel_job(job_id: str) -> JSONResponse:
     with get_session() as db:
         rec = db.get(JobRecord, job_id)
         if not rec:
