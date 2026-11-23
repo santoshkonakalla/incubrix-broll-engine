@@ -87,19 +87,14 @@ def synthesize_edge_tts(text: str, voice_name: str, out_wav_path: Path) -> bool:
     tmp_mp3 = out_wav_path.with_suffix(".edge.mp3")
     edge_ok = False
 
-    # Method 1: New isolated event loop (avoids event loop conflict in worker threads)
+    # Method 1: Clean asyncio.run inside worker thread
     try:
         import asyncio
         import edge_tts
-        loop = asyncio.new_event_loop()
-        try:
-            asyncio.set_event_loop(loop)
-            loop.run_until_complete(edge_tts.Communicate(text, voice_name).save(str(tmp_mp3)))
-            edge_ok = tmp_mp3.exists() and tmp_mp3.stat().st_size > 1000
-        finally:
-            loop.close()
+        asyncio.run(edge_tts.Communicate(text, voice_name).save(str(tmp_mp3)))
+        edge_ok = tmp_mp3.exists() and tmp_mp3.stat().st_size > 1000
     except Exception as e_loop:
-        logger.warning("edge_tts_loop_failed_trying_cli", error=str(e_loop))
+        logger.warning("edge_tts_run_failed_trying_cli", error=str(e_loop))
 
     # Method 2: edge-tts CLI subprocess (zero thread/loop interference)
     if not edge_ok:

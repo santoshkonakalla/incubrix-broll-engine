@@ -70,7 +70,7 @@ class Settings(BaseSettings):
     render_resolution: Literal["720p", "1080p"] = Field(default="720p", alias="RENDER_RESOLUTION")
     color_normalize_enabled: bool = Field(default=True)
     default_seed: int = Field(default=42)
-    worker_concurrency: int = Field(default=2, ge=1, le=16)
+    worker_concurrency: int = Field(default=1, ge=1, le=16)
     job_timeout_seconds: int = Field(default=600, ge=30)
 
     # Infrastructure

@@ -1,6 +1,7 @@
 """Independent Vision-Language Model (VLM) relevance scorer using Groq Llama-4 Vision (Outstanding Level)."""
 
 import base64
+import hashlib
 import json
 from pathlib import Path
 import re
