@@ -758,8 +758,8 @@ def _is_wikimedia_title_relevant(query: str, search_q: str, title: str) -> bool:
 
 def _try_fetch_wikimedia_video(query: str, out_path: Path, duration_needed: float) -> bool:
     """Attempt to fetch an open public-domain/CC stock video clip for real query concepts (0 API keys)."""
-    if "PYTEST_CURRENT_TEST" in os.environ:
-        return False
+    # Bypass remote webm streaming to prevent 512MB OOM crashes on Render Linux containers
+    return False
     try:
         import hashlib
         import shutil
