@@ -7,6 +7,7 @@ from google.genai import types
 from pydantic import BaseModel, Field
 
 from app.adapters.base import PlannedScene, ScenePlannerAdapter
+from app.adapters.gemini_pool import gemini_key_pool
 from app.adapters.mock_adapters import (
     MockScenePlannerAdapter,
     align_explicit_scenes_to_duration,
@@ -102,9 +103,9 @@ class GeminiScenePlannerAdapter(ScenePlannerAdapter):
         )
 
         llm_by_idx = {}
-        try:
-            client = genai.Client(api_key=self.api_key, http_options={"api_version": "v1beta"})
-            resp = client.models.generate_content(
+        def _do_plan(key: str) -> types.GenerateContentResponse:
+            client = genai.Client(api_key=key, http_options={"api_version": "v1beta"})
+            return client.models.generate_content(
                 model=self.model_name,
                 contents=prompt,
                 config=types.GenerateContentConfig(
@@ -113,6 +114,11 @@ class GeminiScenePlannerAdapter(ScenePlannerAdapter):
                     temperature=0.2,
                 ),
             )
+
+        try:
+            if self.api_key:
+                gemini_key_pool.add_key(self.api_key)
+            resp = gemini_key_pool.execute_with_rotation(_do_plan)
             batch = LLMPlanBatch.model_validate_json(resp.text)
             llm_by_idx = {item.scene_index: item for item in batch.scenes}
         except Exception as exc:

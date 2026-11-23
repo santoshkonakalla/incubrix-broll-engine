@@ -9,6 +9,7 @@ from typing import List, Optional
 from google import genai
 
 from app.adapters.base import FootageCandidate, FootageSourceAdapter
+from app.adapters.gemini_pool import gemini_key_pool
 from app.errors import AppError
 
 
@@ -92,12 +93,19 @@ class GeminiGenerativeFootageAdapter(FootageSourceAdapter):
             import concurrent.futures
             pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
             def _call_gemini():
-                client = genai.Client(api_key=self.api_key, http_options={"api_version": "v1beta", "timeout": 6000})
-                return client.interactions.create(
-                    model=self.model_name,
-                    input=full_prompt,
-                    response_format={"type": "image", "aspect_ratio": aspect},
-                )
+                if self.api_key:
+                    gemini_key_pool.add_key(self.api_key)
+
+                def _do_img(key: str):
+                    client = genai.Client(api_key=key, http_options={"api_version": "v1beta", "timeout": 6000})
+                    return client.interactions.create(
+                        model=self.model_name,
+                        input=full_prompt,
+                        response_format={"type": "image", "aspect_ratio": aspect},
+                    )
+
+                return gemini_key_pool.execute_with_rotation(_do_img)
+
             try:
                 future = pool.submit(_call_gemini)
                 interaction = future.result(timeout=6.0)

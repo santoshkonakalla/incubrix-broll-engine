@@ -11,6 +11,7 @@ from google import genai
 from google.genai import types
 
 from app.adapters.base import TTSAdapter, TTSResult
+from app.adapters.gemini_pool import gemini_key_pool
 from app.adapters.mock_adapters import infer_language_from_voice_or_text, synthesize_speech_like_wav
 from app.errors import AppError
 from app.logging_config import get_logger
@@ -157,10 +158,13 @@ class GeminiTTSAdapter(TTSAdapter):
         used_provider = self.provider_name
 
         succeeded = False
-        if self.api_key and time.time() > GeminiTTSAdapter._quota_exhausted_until:
-            try:
-                client = genai.Client(api_key=self.api_key, http_options={"api_version": "v1beta"})
-                resp = client.models.generate_content(
+        if self.api_key or gemini_key_pool.get_candidate_keys():
+            if self.api_key:
+                gemini_key_pool.add_key(self.api_key)
+
+            def _do_tts(key: str):
+                client = genai.Client(api_key=key, http_options={"api_version": "v1beta"})
+                return client.models.generate_content(
                     model=self.model_name,
                     contents=text,
                     config=types.GenerateContentConfig(
@@ -172,6 +176,9 @@ class GeminiTTSAdapter(TTSAdapter):
                         ),
                     ),
                 )
+
+            try:
+                resp = gemini_key_pool.execute_with_rotation(_do_tts)
                 raw_pcm = None
                 if resp.candidates and resp.candidates[0].content and resp.candidates[0].content.parts:
                     for part in resp.candidates[0].content.parts:
@@ -187,8 +194,6 @@ class GeminiTTSAdapter(TTSAdapter):
                         wf.writeframes(raw_pcm)
                     succeeded = True
             except Exception as exc:
-                if "RESOURCE_EXHAUSTED" in str(exc) or "429" in str(exc):
-                    GeminiTTSAdapter._quota_exhausted_until = time.time() + 1800.0
                 logger.warning("gemini_tts_quota_or_network_fallback", error=str(exc))
 
         if not succeeded:
