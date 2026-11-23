@@ -90,16 +90,19 @@ class GeminiGenerativeFootageAdapter(FootageSourceAdapter):
 
         try:
             import concurrent.futures
+            pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
             def _call_gemini():
-                client = genai.Client(api_key=self.api_key)
+                client = genai.Client(api_key=self.api_key, http_options={"api_version": "v1beta", "timeout": 6000})
                 return client.interactions.create(
                     model=self.model_name,
                     input=full_prompt,
                     response_format={"type": "image", "aspect_ratio": aspect},
                 )
-            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+            try:
                 future = pool.submit(_call_gemini)
-                interaction = future.result(timeout=10.0)
+                interaction = future.result(timeout=6.0)
+            finally:
+                pool.shutdown(wait=False, cancel_futures=True)
         except Exception as exc:
             raise AppError(
                 "PROVIDER_UNAVAILABLE",
