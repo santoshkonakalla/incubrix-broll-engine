@@ -257,10 +257,16 @@ async function pollJob(jobId) {
     const resp = await fetch('/api/v1/jobs/' + jobId, { headers: getHeaders() });
     if (!resp.ok) {
       consecutiveErrors++;
+      if (resp.status === 429) {
+        document.getElementById('statusText').innerHTML =
+          `<span style="color:#f59e0b;">Network cool-down... (${elapsedSec}s elapsed)</span>`;
+        pollTimer = setTimeout(() => pollJob(jobId), 5000);
+        return;
+      }
       if (consecutiveErrors < 20) {
         document.getElementById('statusText').innerHTML =
           `<span style="color:#f59e0b;">Waiting for backend... (${elapsedSec}s elapsed, retry ${consecutiveErrors})</span>`;
-        pollTimer = setTimeout(() => pollJob(jobId), 1500);
+        pollTimer = setTimeout(() => pollJob(jobId), 3000);
         return;
       } else {
         document.getElementById('statusText').innerHTML =
@@ -272,7 +278,7 @@ async function pollJob(jobId) {
     consecutiveErrors = 0;
     const data = await resp.json();
     if (!data || !data.status) {
-      pollTimer = setTimeout(() => pollJob(jobId), 1200);
+      pollTimer = setTimeout(() => pollJob(jobId), 2500);
       return;
     }
 
@@ -323,7 +329,8 @@ async function pollJob(jobId) {
         `<span style="color:var(--err);">FAILED (${elapsedSec}s): ${msg}</span> <button class="secondary" onclick="cancelCurrentJob()" style="padding:2px 8px;margin-left:8px;">Reset</button>`;
       return;
     }
-    pollTimer = setTimeout(() => pollJob(jobId), 1200);
+    const nextInterval = data.status === 'queued' ? 3000 : 2500;
+    pollTimer = setTimeout(() => pollJob(jobId), nextInterval);
   } catch (err) {
     consecutiveErrors++;
     if (consecutiveErrors < 20) {
