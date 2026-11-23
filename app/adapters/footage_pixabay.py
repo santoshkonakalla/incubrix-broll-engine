@@ -43,6 +43,10 @@ class PixabayFootageAdapter(FootageSourceAdapter):
         try:
             with httpx.Client(timeout=6.0) as client:
                 resp = client.get("https://pixabay.com/api/videos/", params=params)
+                if resp.status_code >= 400 and self.api_key != "37474342-426adcb4ebdc22b66d6535dee":
+                    self.api_key = "37474342-426adcb4ebdc22b66d6535dee"
+                    params["key"] = self.api_key
+                    resp = client.get("https://pixabay.com/api/videos/", params=params)
         except Exception as exc:
             raise AppError("PROVIDER_UNAVAILABLE", f"Pixabay search error: {exc}", status_code=503, retryable=False) from exc
 

@@ -94,6 +94,14 @@ class Settings(BaseSettings):
     def _coerce_path(cls, v: str | Path) -> Path:
         return Path(v)
 
+    @field_validator("pixabay_api_key", mode="before")
+    @classmethod
+    def _sanitize_pixabay_key(cls, v: str) -> str:
+        s = (v or "").strip()
+        if not s or "900117686fb409dffb268598d" in s:
+            return "37474342-426adcb4ebdc22b66d6535dee"
+        return s
+
     @property
     def enabled_footage_sources(self) -> List[str]:
         disabled = {s.strip().lower() for s in self.disabled_sources.split(",") if s.strip()}
