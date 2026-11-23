@@ -49,8 +49,14 @@ def init_db(database_url: Optional[str] = None) -> None:
     url = database_url or get_settings().database_url
     connect_args: Dict[str, Any] = {}
     if url.startswith("sqlite"):
-        connect_args = {"check_same_thread": False}
+        connect_args = {"check_same_thread": False, "timeout": 15.0}
     _engine = create_engine(url, connect_args=connect_args, pool_pre_ping=True, future=True)
+    if url.startswith("sqlite"):
+        with _engine.connect() as conn:
+            conn.execute(text("PRAGMA journal_mode=WAL;"))
+            conn.execute(text("PRAGMA synchronous=NORMAL;"))
+            conn.execute(text("PRAGMA busy_timeout=15000;"))
+            conn.commit()
     _SessionLocal = sessionmaker(bind=_engine, autocommit=False, autoflush=False, expire_on_commit=False)
     Base.metadata.create_all(bind=_engine)
 
