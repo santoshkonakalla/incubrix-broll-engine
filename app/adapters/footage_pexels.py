@@ -40,21 +40,21 @@ class PexelsFootageAdapter(FootageSourceAdapter):
             "orientation": orientation if orientation in ("landscape", "portrait", "square") else "landscape",
         }
         try:
-            with httpx.Client(timeout=20.0) as client:
+            with httpx.Client(timeout=6.0) as client:
                 resp = client.get(
                     "https://api.pexels.com/videos/search",
                     headers={"Authorization": self.api_key},
                     params=params,
                 )
         except Exception as exc:
-            raise AppError("PROVIDER_UNAVAILABLE", f"Pexels search error: {exc}", status_code=503, retryable=True) from exc
+            raise AppError("PROVIDER_UNAVAILABLE", f"Pexels search error: {exc}", status_code=503, retryable=False) from exc
 
         if resp.status_code >= 400:
             raise AppError(
                 "PROVIDER_UNAVAILABLE",
                 f"Pexels returned HTTP {resp.status_code}",
                 status_code=503,
-                retryable=True,
+                retryable=False if resp.status_code in (400, 401, 403) else True,
             )
 
         videos = resp.json().get("videos") or []

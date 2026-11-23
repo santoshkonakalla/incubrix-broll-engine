@@ -49,6 +49,10 @@ class PlannedScene:
     block_ai_generation: bool = False
     warnings: List[str] = field(default_factory=list)
 
+    @property
+    def duration(self) -> float:
+        return max(0.1, self.end_time - self.start_time)
+
 
 @dataclass
 class FootageCandidate:

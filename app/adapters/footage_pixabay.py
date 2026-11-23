@@ -41,10 +41,10 @@ class PixabayFootageAdapter(FootageSourceAdapter):
             "per_page": max(8, limit * 2),
         }
         try:
-            with httpx.Client(timeout=20.0) as client:
+            with httpx.Client(timeout=6.0) as client:
                 resp = client.get("https://pixabay.com/api/videos/", params=params)
         except Exception as exc:
-            raise AppError("PROVIDER_UNAVAILABLE", f"Pixabay search error: {exc}", status_code=503, retryable=True) from exc
+            raise AppError("PROVIDER_UNAVAILABLE", f"Pixabay search error: {exc}", status_code=503, retryable=False) from exc
 
         if resp.status_code >= 400:
             raise AppError("PROVIDER_UNAVAILABLE", f"Pixabay returned HTTP {resp.status_code}", status_code=503, retryable=False)
