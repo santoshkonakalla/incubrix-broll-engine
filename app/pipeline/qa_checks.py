@@ -42,7 +42,7 @@ def run_video_qa(
     # Black-frame & frozen-frame detection (quick single-pass FFmpeg filter)
     detect_cmd = [
         "ffmpeg",
-        "-threads", "1",
+        "-threads", "0",
         "-i", str(video_path),
         "-vf", "blackdetect=d=0.4:pix_th=0.10,freezedetect=n=-60dB:d=1.5",
         "-f", "null",

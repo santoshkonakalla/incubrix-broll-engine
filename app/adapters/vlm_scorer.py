@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import re
 import time
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import cv2
 import httpx
@@ -48,6 +48,7 @@ class GroqVLMScorerAdapter(VLMScorerAdapter):
     provider_name = "groq"
     _circuit_open_until: float = 0.0
     _circuit_reason: str = ""
+    _cache: Dict[str, VLMScoreResult] = {}
 
     def __init__(self, api_key: str, model_name: str = "meta-llama/llama-4-scout-17b-16e-instruct") -> None:
         self.api_key = api_key
@@ -63,10 +64,16 @@ class GroqVLMScorerAdapter(VLMScorerAdapter):
         negative_keywords: List[str],
         candidate_metadata: str = "",
     ) -> VLMScoreResult:
+        cache_key = f"{video_path.name}_{hashlib.sha1((narration_text + visual_intent).encode()).hexdigest()[:12]}"
+        if cache_key in GroqVLMScorerAdapter._cache:
+            return GroqVLMScorerAdapter._cache[cache_key]
+
         if not self.api_key or time.time() < GroqVLMScorerAdapter._circuit_open_until:
-            return self._fallback.score_clip(
+            res = self._fallback.score_clip(
                 video_path, narration_text, visual_intent, avoid_terms, negative_keywords, candidate_metadata
             )
+            GroqVLMScorerAdapter._cache[cache_key] = res
+            return res
 
         frame_b64 = extract_keyframe_base64(video_path, 0.45)
         if not frame_b64:
@@ -107,7 +114,7 @@ class GroqVLMScorerAdapter(VLMScorerAdapter):
         }
 
         try:
-            with httpx.Client(timeout=4.0) as client:
+            with httpx.Client(timeout=2.5) as client:
                 resp = client.post(
                     "https://api.groq.com/openai/v1/chat/completions",
                     headers={
@@ -132,7 +139,7 @@ class GroqVLMScorerAdapter(VLMScorerAdapter):
                 score = min(score, 1.8)
             fx_raw = parsed.get("subject_focus_x")
             focus_x = max(0.0, min(1.0, float(fx_raw))) if fx_raw is not None else None
-            return VLMScoreResult(
+            res = VLMScoreResult(
                 relevance_score=round(score, 2),
                 rationale=str(parsed.get("rationale") or "Scored by independent Groq Llama-4 Vision."),
                 violates_avoid=violates,
@@ -142,10 +149,14 @@ class GroqVLMScorerAdapter(VLMScorerAdapter):
                 model=self.model_name,
                 estimated_cost_usd=0.0002,
             )
+            GroqVLMScorerAdapter._cache[cache_key] = res
+            return res
         except Exception as exc:
             logger.warning("groq_vlm_fallback", error=str(exc))
             GroqVLMScorerAdapter._circuit_open_until = time.time() + 30.0
             GroqVLMScorerAdapter._circuit_reason = str(exc)
-            return self._fallback.score_clip(
+            res = self._fallback.score_clip(
                 video_path, narration_text, visual_intent, avoid_terms, negative_keywords, candidate_metadata
             )
+            GroqVLMScorerAdapter._cache[cache_key] = res
+            return res

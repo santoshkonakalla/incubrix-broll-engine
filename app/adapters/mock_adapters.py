@@ -761,36 +761,53 @@ def _try_fetch_wikimedia_video(query: str, out_path: Path, duration_needed: floa
     if "PYTEST_CURRENT_TEST" in os.environ:
         return False
     try:
+        import hashlib
+        import shutil
         import httpx
         import urllib.parse
+
         search_q = extract_visual_search_query(query)
+        cache_dir = Path("./.local_storage/clip_cache")
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        w_cache_key = hashlib.sha1(f"wiki:{search_q.lower()[:80]}:{duration_needed:.1f}".encode()).hexdigest()[:16]
+        cached_w_clip = cache_dir / f"{w_cache_key}.mp4"
+        if cached_w_clip.exists() and cached_w_clip.stat().st_size > 20000:
+            shutil.copyfile(cached_w_clip, out_path)
+            return True
+
         candidate_queries = [search_q]
 
         # Domain fallbacks if search_q has zero hits
         q_l = query.lower()
         if any(k in q_l for k in ("health", "doctor", "medical", "disease", "patient", "hospital")):
-            candidate_queries.extend(["artificial intelligence healthcare medical", "medical diagnostic technology scan"])
+            candidate_queries.append("artificial intelligence healthcare medical")
         elif any(k in q_l for k in ("planet", "earth", "nature", "tree", "forest")):
-            candidate_queries.extend(["planet earth", "nature forest trees"])
+            candidate_queries.append("planet earth")
         elif any(k in q_l for k in ("robot", "robotics", "ai", "artificial intelligence")):
-            candidate_queries.extend(["robot humanoid robotics", "artificial intelligence technology"])
+            candidate_queries.append("robot humanoid robotics")
         elif any(k in q_l for k in ("cricket", "football", "soccer", "basketball", "tennis", "sports", "stadium", "match", "tournament", "player", "athlete")):
-            candidate_queries.extend([f"{search_q} match", f"{search_q} sport", "cricket match tournament", "cricket stadium match"])
+            candidate_queries.append("cricket match tournament")
 
         headers = {"User-Agent": "IncuBrixBrollEngine/1.0 (santoshkonakalla7@gmail.com)"}
-        with httpx.Client(headers=headers, follow_redirects=True, timeout=8.0) as client:
-            for cur_q in candidate_queries:
-                api_url = f"https://commons.wikimedia.org/w/api.php?action=query&format=json&list=search&srsearch={urllib.parse.quote(cur_q)}+filetype:video&srnamespace=6&srlimit=6"
-                resp = client.get(api_url)
+        with httpx.Client(headers=headers, follow_redirects=True, timeout=4.0) as client:
+            for cur_q in candidate_queries[:2]:
+                api_url = f"https://commons.wikimedia.org/w/api.php?action=query&format=json&list=search&srsearch={urllib.parse.quote(cur_q)}+filetype:video&srnamespace=6&srlimit=3"
+                try:
+                    resp = client.get(api_url)
+                except Exception:
+                    continue
                 if resp.status_code != 200:
                     continue
                 hits = resp.json().get("query", {}).get("search", [])
-                for hit in hits:
+                for hit in hits[:2]:
                     title = hit.get("title", "")
                     if not _is_wikimedia_title_relevant(query, cur_q, title):
                         continue
                     vinfo_url = f"https://commons.wikimedia.org/w/api.php?action=query&format=json&titles={urllib.parse.quote(title)}&prop=videoinfo&viprop=url|size|derivatives"
-                    vres = client.get(vinfo_url)
+                    try:
+                        vres = client.get(vinfo_url)
+                    except Exception:
+                        continue
                     if vres.status_code != 200:
                         continue
                     pages = vres.json().get("query", {}).get("pages", {})
@@ -798,36 +815,48 @@ def _try_fetch_wikimedia_video(query: str, out_path: Path, duration_needed: floa
                         vinfo = p.get("videoinfo", [{}])[0]
                         derivs = vinfo.get("derivatives", [])
                         target_url = None
-                        for d in derivs:
-                            h = d.get("height", 0)
-                            if 360 <= h <= 720:
-                                target_url = d.get("src")
-                                break
-                        if not target_url and derivs:
-                            target_url = derivs[0].get("src")
+                        # Prioritize 360p or 480p low-bandwidth derivatives (download in 1-2s vs 30s)
+                        v_derivs = [d for d in derivs if 360 <= d.get("height", 0) <= 540 and d.get("src")]
+                        if v_derivs:
+                            v_derivs.sort(key=lambda d: d.get("height", 0))
+                            target_url = v_derivs[0]["src"]
+                        elif derivs:
+                            for d in derivs:
+                                if 360 <= d.get("height", 0) <= 720 and d.get("src"):
+                                    target_url = d.get("src")
+                                    break
+                            if not target_url and derivs:
+                                target_url = derivs[0].get("src")
                         if not target_url:
                             target_url = vinfo.get("url")
 
                         if not target_url:
                             continue
 
-                        seek = "10" if any(k in cur_q.lower() for k in ("earth", "planet", "forest", "nature")) else "2"
+                        seek = "8" if any(k in cur_q.lower() for k in ("earth", "planet", "forest", "nature")) else "2"
                         out_path.parent.mkdir(parents=True, exist_ok=True)
                         cmd = [
-                            "ffmpeg", "-y", "-threads", "1",
+                            "ffmpeg", "-y", "-threads", "2",
                             "-headers", "User-Agent: IncuBrixBrollEngine/1.0 (santoshkonakalla7@gmail.com)\r\n",
                             "-ss", seek, "-t", str(max(duration_needed + 0.5, 4.0)),
                             "-i", target_url,
                             "-c:v", "libx264", "-preset", "ultrafast", "-crf", "26",
                             "-pix_fmt", "yuv420p", "-an", str(out_path),
                         ]
-                        res = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+                        res = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
                         if res.returncode == 0 and out_path.exists() and out_path.stat().st_size > 20000:
                             cap = cv2.VideoCapture(str(out_path))
                             ret, frame = cap.read()
                             cap.release()
                             if ret and frame.mean() > 15.0:
+                                try:
+                                    shutil.copyfile(out_path, cached_w_clip)
+                                except Exception:
+                                    pass
                                 return True
+        return False
+    except Exception:
+        return False
         return False
     except Exception:
         return False
@@ -856,22 +885,38 @@ class MockStockFootageAdapter(FootageSourceAdapter):
         candidates: List[FootageCandidate] = []
         edge_x = 0.84 if "edge" in query.lower() or "edge" in scene_text.lower() else None
 
+        cache_dir = Path("./.local_storage/clip_cache")
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        import shutil
+
         for rank in range(limit):
             key = f"{self.source_name}:{query}:{rank}:{seed}"
             cid = f"{self.source_name}_{hashlib.sha1(key.encode()).hexdigest()[:10]}"
             local_clip = out_dir / f"{cid}.mp4"
+            cached_clip = cache_dir / f"{cid}.mp4"
             if not local_clip.exists():
-                fetched = False
-                if rank == 0 and not edge_x:
-                    fetched = _try_fetch_wikimedia_video(query, local_clip, duration_needed)
-                if not fetched or not local_clip.exists():
-                    generate_mock_video_clip(
-                        local_clip,
-                        label=f"{self.source_name}: {query}",
-                        duration=max(duration_needed + 1.0, 4.5),
-                        edge_subject_x=edge_x,
-                        seed=seed + rank,
-                    )
+                if cached_clip.exists() and cached_clip.stat().st_size > 20000:
+                    try:
+                        shutil.copyfile(cached_clip, local_clip)
+                    except Exception:
+                        pass
+                if not local_clip.exists():
+                    fetched = False
+                    if rank == 0 and not edge_x:
+                        fetched = _try_fetch_wikimedia_video(query, local_clip, duration_needed)
+                    if not fetched or not local_clip.exists():
+                        generate_mock_video_clip(
+                            local_clip,
+                            label=f"{self.source_name}: {query}",
+                            duration=max(duration_needed + 1.0, 4.5),
+                            edge_subject_x=edge_x,
+                            seed=seed + rank,
+                        )
+                    if local_clip.exists() and local_clip.stat().st_size > 20000:
+                        try:
+                            shutil.copyfile(local_clip, cached_clip)
+                        except Exception:
+                            pass
             licence = (
                 "AI Generated (Commercial Use Allowed — Mock Gemini Image)"
                 if self.is_generative

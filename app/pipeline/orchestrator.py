@@ -103,6 +103,8 @@ def _select_clip_for_scene(
     ) -> Optional[Tuple[FootageCandidate, Path, VLMScoreResult]]:
         local_best: Optional[Tuple[FootageCandidate, Path, VLMScoreResult]] = None
         for q in queries:
+            if src_name in failed_sources:
+                return local_best
             try:
                 usage_counts[src_name] = usage_counts.get(src_name, 0) + 1
                 cands = adapter.search(
@@ -122,7 +124,7 @@ def _select_clip_for_scene(
                 msg = f"Footage source '{src_name}' unavailable on scene {scene.scene_index} ({exc}); failing over."
                 warnings.append(msg)
                 logger.warning("footage_source_failover", source=src_name, scene_index=scene.scene_index, error=str(exc))
-                return None
+                return local_best
 
             for cand in cands:
                 if cand.watermarked or not cand.commercial_use_allowed:
@@ -193,6 +195,8 @@ def _select_clip_for_scene(
 
     # Step 1: Try stock sources first unless scene explicitly triggers statcard or abstract generative preference
     for src_name in stock_order:
+        if src_name in failed_sources:
+            continue
         hit = try_source_candidates(src_name, sources[src_name], queries, limit=2)
         if hit and (best_stock is None or hit[2].relevance_score > best_stock[2].relevance_score):
             best_stock = hit

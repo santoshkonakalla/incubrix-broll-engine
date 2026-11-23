@@ -137,6 +137,7 @@ def synthesize_edge_tts(text: str, voice_name: str, out_wav_path: Path) -> bool:
 
 class GeminiTTSAdapter(TTSAdapter):
     provider_name = "gemini"
+    _quota_exhausted_until: float = 0.0
 
     def __init__(self, api_key: str, model_name: str = "gemini-2.5-flash-preview-tts") -> None:
         self.api_key = api_key
@@ -160,7 +161,7 @@ class GeminiTTSAdapter(TTSAdapter):
         used_provider = self.provider_name
 
         succeeded = False
-        if self.api_key:
+        if self.api_key and time.time() > GeminiTTSAdapter._quota_exhausted_until:
             try:
                 client = genai.Client(api_key=self.api_key, http_options={"api_version": "v1beta"})
                 resp = client.models.generate_content(
@@ -190,6 +191,8 @@ class GeminiTTSAdapter(TTSAdapter):
                         wf.writeframes(raw_pcm)
                     succeeded = True
             except Exception as exc:
+                if "RESOURCE_EXHAUSTED" in str(exc) or "429" in str(exc):
+                    GeminiTTSAdapter._quota_exhausted_until = time.time() + 1800.0
                 logger.warning("gemini_tts_quota_or_network_fallback", error=str(exc))
 
         if not succeeded:
